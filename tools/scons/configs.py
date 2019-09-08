@@ -16,9 +16,10 @@
     {
       "name": "src/stl_utils_test",
       "type": "CppProgram",
-      "hdrs": ["src/stl_utils_test.hpp"],
+      "hdrs": [],
       "srcs": ["src/stl_utils_test.cpp"],
-      "deps": ["toolchain/gtest", "toolchain/json11"]
+      "deps": ["toolchain/gtest",
+               "toolchain/json11"]
     }
   ]
 }

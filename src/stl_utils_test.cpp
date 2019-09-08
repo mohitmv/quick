@@ -1,8 +1,12 @@
-#include <iostream>
+// Copyright: 2019 Mohit Saini
+// Author: Mohit Saini (mohitsaini1196@gmail.com)
 
 #include "quick/stl_utils.hpp"
-#include "gtest/gtest.h"
+
+#include <iostream>
 #include <unordered_map>
+
+#include "gtest/gtest.h"
 
 using std::unordered_set;
 using std::unordered_map;

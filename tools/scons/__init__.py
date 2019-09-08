@@ -124,7 +124,6 @@ def DeclareToSCons(env, build_targets, scons_ARGUMENTS):
     for i in module.get("global_include_dir", []):
       include_dir = (configs["toolchain_path"] if module["type"] == "ToolchainLibrary" else "") + i;
       configs["global_include_dir"].append(include_dir);
-  print("build_sequence = ", build_sequence);
   SetGccConfigs(args, env, configs);
   for module_name in build_sequence:
     module = all_modules[module_name];

@@ -30,7 +30,7 @@ bool ContainsKey(const ContainerType& container, const KeyType& key) {
 
 template<typename MapContainer, typename OutputContainer>
 void STLGetKeys(const MapContainer& input, OutputContainer* output) {
-  for (auto& item: input) {
+  for (auto& item : input) {
     output->insert(item.first);
   }
 }
