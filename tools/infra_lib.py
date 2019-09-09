@@ -189,15 +189,20 @@ class SconsUtility:
     return list(("build-dbg/" + i) for i in build_targets);
 
 
+
 def InteractiveFolderUpgrade_Incomplete(updated_source,
                                         configs,
                                         my_package_name):
   assert (configs.package == my_package_name);
   effected_folders = ["src", "include", "tests"];
+  RunLinuxCommand("rm -f tools/global_configs.py");
   for i in effected_folders:
-    RunLinuxCommand("rm {0}/*.cpp {0}/*.hpp {}/*/*.cpp {0}/*/*.hpp {}/*/*/*.cpp {0}/*/*/*.hpp".format(i));
+    RunLinuxCommand("rm -f {0}/*.cpp {0}/*.hpp {0}/*/*.cpp {0}/*/*.hpp {0}/*/*/*.cpp {0}/*/*/*.hpp".format(i));
     RunLinuxCommand("mkdir -p " + i);
-    RunLinuxCommand("cp -r "+ os.path.join(updated_source, "/{0}/*") + " {0}/".format(i));
+    print(">>>", os.path.join(updated_source, "/pp"))
+    RunLinuxCommand(("cp -r "+ os.path.join(updated_source, "{0}/*") + " {0}/").format(i));
+  RunLinuxCommand("cp -r " + os.path.join(updated_source, "tools/global_configs.py") + " tools/global_configs.py");
+  RunLinuxCommand("cp -r " + os.path.join(updated_source, "tools/local_configs.py") + " tools/local_configs.py");
   print("Note that it's a buggy upgrade. Few things might not work.");
 
 
