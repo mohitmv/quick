@@ -1,7 +1,7 @@
 import os, infra_lib
 
 configs = infra_lib.Object();
-configs.package = "quick-1.0"
+configs.package = "quick-1.0.0"
 configs.prod_cc_flags = " -Wno-unused-function  -Wno-unused-parameter -Wno-unused-local-typedefs -Werror ";
 configs.global_include_dir = [];
 configs.active_remote_branch = "master";

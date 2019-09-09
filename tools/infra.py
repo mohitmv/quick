@@ -51,7 +51,7 @@ def main():
   if len(sys.argv) == 1:
     return help_message;
   command = sys.argv[1]
-  opts, args = getopt.getopt(sys.argv[2:], "", ["arg1=", "force"])
+  opts, args = getopt.getopt(sys.argv[2:], "", ["arg1=", "force", "=package", "=from"])
   opts = dict(opts);
   if ((not is_local_configs_setup_done) and (command not in ["dev_setup",  "-h", "--help"])):
     infra_lib.Exit("dev_setup is not ready. run 'chmod +x tools/infra.py && ./tools/infra.py dev_setup.py' before anything else");
@@ -82,6 +82,8 @@ def main():
   elif command == "per_commit_check":
     helpers.RunLintChecks(configs);
     helpers.RunAllTests(configs, pp = 20);
+  elif command == "upgrade":
+    infra_lib.InteractiveFolderUpgrade_Incomplete(opts["--from"], configs, opts["--package"]);
   else:
     return infra_lib.Exit("Invalid command '" + command + "'");
 

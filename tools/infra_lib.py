@@ -188,3 +188,16 @@ class SconsUtility:
       declared_targets[module_name] = declaration;
     return list(("build-dbg/" + i) for i in build_targets);
 
+
+def InteractiveFolderUpgrade_Incomplete(updated_source,
+                                        configs,
+                                        my_package_name):
+  assert (configs.package == my_package_name);
+  effected_folders = ["src", "include", "tests"];
+  for i in effected_folders:
+    RunLinuxCommand("rm {0}/*.cpp {0}/*.hpp {}/*/*.cpp {0}/*/*.hpp {}/*/*/*.cpp {0}/*/*/*.hpp".format(i));
+    RunLinuxCommand("mkdir -p " + i);
+    RunLinuxCommand("cp -r "+ os.path.join(updated_source, "/{0}/*") + " {0}/".format(i));
+  print("Note that it's a buggy upgrade. Few things might not work.");
+
+
