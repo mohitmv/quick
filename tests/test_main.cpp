@@ -1,3 +1,6 @@
+// Copyright: 2019 Mohit Saini
+// Author: Mohit Saini (mohitsaini1196@gmail.com)
+
 #include "gtest/gtest.h"
 
 int main(int argc, char **argv) {
