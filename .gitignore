@@ -1,2 +1,3 @@
 build-dbg/
 .sconsign.dblite
+__pycache__

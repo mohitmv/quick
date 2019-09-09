@@ -4,26 +4,26 @@ import os, helpers, json
 
 cpplint_script = "~/toolchain/cpplint.py"
 
-# def CppLintChecks():
-#   os.system("build/header_guard");
-
-
-# CppLintChecks();
-
 configs = json.loads(helpers.ReadFile(helpers.ROOT + "/tools/scons/configs.py"));
 dependency_configs = configs["dependency_configs"];
 
 
 test_modules = set();
-# cpp_program_files = set();
+cpp_program_files = set();
 
 for i in dependency_configs:
   if i["type"] == "CppProgram" and i["name"][-5:] == "_test":
     test_modules.add(i["name"]);
+  if i["type"] in set(["CppProgram", "CppLibrary"]):
+    cpp_program_files |= set(i.get("srcs", []))
+    cpp_program_files |= set(i.get("hdrs", []))
 
-os.system(cpplint_script + " --filter=-build/header_guard include/* include/*/* include/*/*/* include/*/*/* src/*  src/*/* src*/*/* tests/* tests/*/*");
+for i in cpp_program_files:
+  assert os.path.exists(i), "File " + i +" doesn't exists";
+
+helpers.RunLinuxCommand(cpplint_script + " --filter=-build/header_guard " + " ".join(cpp_program_files))
 
 for i in test_modules:
-  os.system("scons " + i + " && ./build-dbg/"+i)
+  helpers.RunLinuxCommand("scons " + i + " && ./build-dbg/"+i)
 
 

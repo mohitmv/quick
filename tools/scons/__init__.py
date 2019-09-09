@@ -1,8 +1,21 @@
 import sys, os, json
+# import helpers
+# from helpers import ReadFile, SoftUpdate
 
 import SCons.Variables
 
-########## Helper Functions Starts Here ##########
+########## Global Variables #####################
+
+toolchain_module_types = set(["ToolchainLibrary"]);
+
+module_default_fields = dict(srcs=[],
+                             hdrs=[],
+                             deps=[],
+                             global_include_dir=[],
+                             local_include_dir=[]);
+
+
+########## Helper Functions  ####################
 
 def ReadFile(fn):
   fd = open(fn);
@@ -10,23 +23,26 @@ def ReadFile(fn):
   fd.close();
   return data;
 
-toolchain_module_types = set(["ToolchainLibrary"]);
+
+# Update dict a by values of b, but without overriding 
+def SoftUpdate(a, b):
+  for i in b:
+    if i not in a:
+      a[i] = b[i];
 
 def IsToolchainModule(module):
   return (module["type"] in toolchain_module_types);
-
-########## Helper Functions Ends Here ##########
 
 
 def GetConfigs(env):
   config_file = env['ROOT_PATH'] + "/tools/scons/configs.py";
   configs = json.loads(ReadFile(config_file));
+  for i in configs["dependency_configs"]:
+    SoftUpdate(i, module_default_fields);
   configs["toolchain_path"] = os.getenv("HOME") + "/toolchain/";
   configs["prod_cc_flags"] = " -Wno-unused-function  -Wno-unused-parameter -Wno-unused-local-typedefs -Werror ";
   configs["global_include_dir"] = ["include"];
   return configs;
-
-# core_libs_path = ["src/lexer", "src/parser", "src/regex", "src/error", "src/regex_builder", "src/aparse_machine_builder", "src/utils", "src/traverser", "src/parse_regex", "src/grammar"];
 
 def AddArguments(ARGUMENTS):
   variables = SCons.Variables.Variables(args=ARGUMENTS);
@@ -51,9 +67,6 @@ def SetGccConfigs(args, env, configs):
   elif args["env"] == "laptop":
     env["CXX"] = "g++";
     env["CCFLAGS"] = "-std=c++14 -O0 -Wall -Wextra -Wno-sign-compare -fno-omit-frame-pointer -Wnon-virtual-dtor -mpopcnt -msse4.2 -g3 -Woverloaded-virtual -Wno-char-subscripts -Werror=deprecated-declarations -Wa,--compress-debug-sections -fdiagnostics-color=always -D _APARSE_DEBUG_FLAG=true";
-
-
-# core_libs_path = [];
 
 def TopologicalSorting(build_targets, all_modules):
   output = [];
@@ -90,11 +103,17 @@ def CalculateCompleteDependency(build_targets, all_modules):
     CompleteDependency(i);
   return complete_dependency_dict;
 
+def DeclareCppLibrary(env, module):
+  if len(module['srcs']) > 0:
+    return env.Object(module["name"], module["srcs"]);
+
 def DeclareCppProgram(env,
                       module,
                       complete_dependency,
                       declared_targets):
-  required_objects = list(declared_targets[i] for i in complete_dependency)
+  required_objects = list(declared_targets[i]
+                            for i in complete_dependency
+                            if declared_targets[i] != None);
   required_objects.append(env.Object(module["srcs"]));
   return env.Program(module["name"], required_objects);
 
@@ -129,8 +148,7 @@ def DeclareToSCons(env, build_targets, scons_ARGUMENTS):
     module = all_modules[module_name];
     complete_dependency = complete_dependency_dict[module["name"]];
     if module["type"] == "CppLibrary":
-      declaration = env.Object(module["name"], module["srcs"]);
-      print("Declation of ", module["name"], module["srcs"]);
+      declaration = DeclareCppLibrary(env, module);
     elif module["type"] == "CppProgram":
       declaration = DeclareCppProgram(env,
                                       module,
