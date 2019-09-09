@@ -26,5 +26,14 @@ configs.dependency_configs = [
 
   br.CppLibrary("src/debug",
                 hdrs = ["include/quick/debug.hpp"]),
+
+  br.CppLibrary("src/file_utils",
+                hdrs = ["include/quick/file_utils.hpp"],
+                srcs = ["src/file_utils.cpp"]),
+
+  br.CppTest("src/file_utils_test",
+                srcs = ["src/file_utils_test.cpp"],
+                deps = ["src/file_utils"]),
+
 ];
 
