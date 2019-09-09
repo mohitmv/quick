@@ -1,27 +1,25 @@
-import os
+import infra_lib, os
 
-################# Useful Configs #################
-
-ROOT = os.getcwd();
-TOOLCHAIN_PATH = os.environ["HOME"] + "/toolchain";
-
-def ReadFile(fn):
-  fd = open(fn);
-  data = fd.read();
-  fd.close();
-  return data;
-
-def RunLinuxCommand(c):
-  print("Running: " + c);
-  output = os.system(c);
-  if ((output >> 8) != 0):
-    print("Error Exit !");
-    exit(1);
+def PreProcessDependencyConfigs(configs):
+  for i in configs.dependency_configs:
+    if i["type"] == "CppTest":
+      i["deps"].append("tests/test_main");
+  br = infra_lib.BuildRule();
+  configs.dependency_configs.append(
+    br.CppLibrary("tests/test_main",
+                  srcs = ["tests/test_main.cpp"],
+                  deps = ["toolchain/gtest"]));
+  return configs;
 
 
-# Update dict a by values of b, but without overriding 
-def SoftUpdate(a, b):
-  for i in b:
-    if i not in a:
-      a[i] = b[i];
+def RunLintChecks(configs, files = None):
+  if (files == None):
+    files = infra_lib.CppSourceFilesList(configs);
+  infra_lib.RunLinuxCommand(os.path.join(configs.toolchain_path + "/cpplint.py") + " --filter=-build/header_guard " + " ".join(files));
 
+def RunAllTests(configs, pp = 20, tests = None):
+  if (tests == None):
+    tests = list(i["name"] for i in configs.dependency_configs if i["type"] == "CppTest")
+  infra_lib.RunLinuxCommand("scons -j"+str(pp) + " " + " ".join(tests));
+  for i in tests:
+    infra_lib.RunLinuxCommand("./build-dbg/" + i);

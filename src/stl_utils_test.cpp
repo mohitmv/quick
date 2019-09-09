@@ -29,9 +29,3 @@ TEST(STLGetKeys, Basic) {
   EXPECT_EQ(results, (std::set<int> {10, 20}));
 }
 
-
-int main(int argc, char **argv) {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
-}
-
