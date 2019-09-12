@@ -16,6 +16,7 @@ usage: <python script> command [options]
 """;
 
 
+
 default_local_configs = """
 import os, infra_lib, helpers
 from global_configs import configs
@@ -24,28 +25,13 @@ from global_configs import configs
 
 br = infra_lib.BuildRule();
 configs.dependency_configs.extend([
-  # All paths are relative w.r.t `configs.toolchain_path`
-  br.ToolchainLibrary(
-      "toolchain/gtest",
-      srcs = [ "googletest-release-1.8.1/googletest/src/gtest-all.cc" ],
-      global_include_dir = [ "googletest-release-1.8.1/googletest/include" ],
-      local_include_dir = [ "googletest-release-1.8.1/googletest" ],
-      download_zip_from = None,
-      download_to = None),
-
-  # All paths are relative w.r.t `configs.toolchain_path`
-  br.ToolchainLibrary("toolchain/json11",
-                      srcs = ["json11-master/json/json11.cpp"],
-                      global_include_dir = [ "json11-master"],
-                      download_zip_from = None,
-                      download_to = None),
-
+  # Declare more dependency rules here.
+  # if a module is redeclared here, it will override previous declaration.
 ]);
 
+""";
 
 configs = helpers.PreProcessDependencyConfigs(configs);
-
-""";
 
 def main():
   if len(sys.argv) == 1:
@@ -53,15 +39,17 @@ def main():
   command = sys.argv[1]
   opts, args = getopt.getopt(sys.argv[2:], "", ["arg1=", "force", "=package", "=from"])
   opts = dict(opts);
-  if ((not is_local_configs_setup_done) and (command not in ["dev_setup",  "-h", "--help"])):
-    infra_lib.Exit("dev_setup is not ready. run 'chmod +x tools/infra.py && ./tools/infra.py dev_setup.py' before anything else");
-  elif command in ["-h", "--help"]:
+  if command in ["-h", "--help"]:
     return help_message;
   elif command == "push":
-    infra_lib.RunLinuxCommand("git add '*'; git commit -m 'Some Change' ; git push origin HEAD:" + configs.active_remote_branch);
+    if (len(args) > 0):
+      branch = args[0];
+    else:
+      branch = configs.active_remote_branch;
+    infra_lib.RunLinuxCommand("git add '*'; git commit -m 'Some Change' ; git push origin HEAD:" + branch);
   elif command == "remote_branch":
     return configs.active_remote_branch;
-  elif command == "dev_setup":
+  elif command == "local_setup":
     local_configs_file = os.path.join(infra_lib.ROOT,
                                       "tools",
                                       "local_configs.py");
@@ -82,8 +70,6 @@ def main():
   elif command == "per_commit_check":
     helpers.RunLintChecks(configs);
     helpers.RunAllTests(configs, pp = 20);
-  elif command == "upgrade":
-    infra_lib.InteractiveFolderUpgrade_Incomplete(opts["--from"], configs, opts["--package"]);
   else:
     return infra_lib.Exit("Invalid command '" + command + "'");
 

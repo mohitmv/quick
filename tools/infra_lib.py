@@ -43,15 +43,21 @@ def Exit(message):
 
 def CppSourceFilesList(configs):
   internal_module_types = set(["CppProgram", "CppLibrary", "CppTest"]);
-  output = set()
+  files = set()
   for i in configs.dependency_configs:
     if i["type"] in internal_module_types:
-      output |= set(i["srcs"]);
-      output |= set(i["hdrs"]);
-  for i in output:
+      files |= set(i["srcs"]);
+      files |= set(i["hdrs"]);
+  for i in files:
     assert os.path.exists(i), "File '" + i  + "', declared in dependency_configs doesn't exists";
+  output = list();
+  cwd =  os.path.join(os.getcwd(), "");
+  # print(cwd, list(files)[0][:len(cwd)], files)
+  for i in files:
+    if os.path.abspath(i)[:len(cwd)] == cwd:
+      output.append(i);
+  # print(output)
   return output;
-
 
 ###################### Build Utilities ########################
 
@@ -59,7 +65,11 @@ module_default_fields = dict(srcs=[],
                              hdrs=[],
                              deps=[],
                              global_include_dir=[],
-                             local_include_dir=[]);
+                             local_include_dir=[],
+                             global_link_flags = "",
+                             local_link_flags = "",
+                             global_cc_flags = "",
+                             local_cc_flags = "");
 
 def BuildRule():
   br = Object();
@@ -68,25 +78,14 @@ def BuildRule():
       return SoftUpdate(dict(type = module_type, name = name, **params),
                         module_default_fields);
     return ActionBuilder;
-  for i in ["CppLibrary", "CppTest", "CppProgram", "ToolchainLibrary"]:
+  for i in ["CppLibrary", "CppTest", "CppProgram"]:
     br[i] = BuildRuleBuilder(i);
   return br;
 
 class SconsUtility:
-  toolchain_module_types = set(["ToolchainLibrary"]);
   def __init__(self, scons_env, configs):
     self.env = scons_env;
     self.configs = configs;
-
-  def ToolchainPath(self, path):
-    return os.path.join(self.configs.toolchain_path, path);
-
-  def IsToolchainModule(self, module):
-    return (module["type"] in toolchain_module_types);
-
-  def PreProcessConfigs(self, env):
-    configs = self.configs;
-    configs.global_include_dir.append("include");
 
   def SetGccConfigs(self):
     env = self.env;
@@ -133,7 +132,11 @@ class SconsUtility:
 
   def DeclareCppLibrary(self, env, module):
     if len(module['srcs']) > 0:
-      return env.Object(module["name"], module["srcs"]);
+      return env.Object(
+                module["name"],
+                module["srcs"],
+                CPPPATH = module["local_include_dir"] + env["CPPPATH"],
+                CCFLAGS = env["CCFLAGS"] + " " + module["local_cc_flags"]);
 
   def DeclareCppProgram(self, env,
                         module,
@@ -143,20 +146,16 @@ class SconsUtility:
                               for i in complete_dependency
                               if declared_targets[i] != None);
     required_objects.append(env.Object(module["srcs"]));
-    return env.Program(module["name"], required_objects);
-
-
-  def DeclareToolchainLibrary(self, env, module, configs):
-    local_include_dir = module["local_include_dir"];
-    srcs = list(self.ToolchainPath(i) for i in module["srcs"])
-    cpppath_flags = list(self.ToolchainPath(i) for i in local_include_dir);
-    return env.Object(module["name"], srcs,
-                      CPPPATH = cpppath_flags + env["CPPPATH"]);
+    return env.Program(
+              module["name"],
+              required_objects,
+              CPPPATH = module["local_include_dir"] + env["CPPPATH"],
+              CCFLAGS = env["CCFLAGS"] + " " + module["local_cc_flags"],
+              LINKFLAGS = env["LINKFLAGS"] + " " + module["local_link_flags"]);
 
   def DeclareToSCons(self, build_targets):
     env = self.env;
     configs = self.configs;
-    self.PreProcessConfigs(configs);
     all_modules = dict((i["name"], i) for i in configs["dependency_configs"]);
     if len(build_targets) == 0:
       build_targets = list(all_modules.keys());
@@ -166,9 +165,9 @@ class SconsUtility:
     declared_targets = {};
     for module_name in build_sequence:
       module = all_modules[module_name];
-      for i in module["global_include_dir"]:
-        include_dir = (self.ToolchainPath(i) if module["type"] == "ToolchainLibrary" else  i);
-        configs["global_include_dir"].append(include_dir);
+      configs["global_include_dir"].extend(module["global_include_dir"]);
+      configs["CCFLAGS"] += " " + module["global_cc_flags"];
+      configs["LINKFLAGS"] += " " + module["global_link_flags"];
     self.SetGccConfigs();
     for module_name in build_sequence:
       module = all_modules[module_name];
@@ -180,29 +179,9 @@ class SconsUtility:
                                         module,
                                         complete_dependency,
                                         declared_targets);
-      elif module["type"] == "ToolchainLibrary":
-        declaration = self.DeclareToolchainLibrary(env, module, configs);
       else:
         print(module);
         assert False;
       declared_targets[module_name] = declaration;
     return list(("build-dbg/" + i) for i in build_targets);
-
-
-
-def InteractiveFolderUpgrade_Incomplete(updated_source,
-                                        configs,
-                                        my_package_name):
-  assert (configs.package == my_package_name);
-  effected_folders = ["src", "include", "tests"];
-  RunLinuxCommand("rm -f tools/global_configs.py");
-  for i in effected_folders:
-    RunLinuxCommand("rm -f {0}/*.cpp {0}/*.hpp {0}/*/*.cpp {0}/*/*.hpp {0}/*/*/*.cpp {0}/*/*/*.hpp".format(i));
-    RunLinuxCommand("mkdir -p " + i);
-    print(">>>", os.path.join(updated_source, "/pp"))
-    RunLinuxCommand(("cp -r "+ os.path.join(updated_source, "{0}/*") + " {0}/").format(i));
-  RunLinuxCommand("cp -r " + os.path.join(updated_source, "tools/global_configs.py") + " tools/global_configs.py");
-  RunLinuxCommand("cp -r " + os.path.join(updated_source, "tools/local_configs.py") + " tools/local_configs.py");
-  print("Note that it's a buggy upgrade. Few things might not work.");
-
 
