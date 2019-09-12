@@ -4,29 +4,30 @@
 #ifndef QUICK_TIME_HPP_
 #define QUICK_TIME_HPP_
 
-#include <chrono>
+#include <chrono>  // NOLINT
 
 namespace quick {
 
-long long GetEpochMicroSeconds() {
-  using namespace std::chrono;
+int64_t GetEpochMicroSeconds() {
+  using namespace std::chrono;  // NOLINT
   auto epoch_time = system_clock::now().time_since_epoch();
   return duration_cast<milliseconds>(epoch_time).count();
 }
 
 class MicroSecondTimer {
-public:
+ public:
   MicroSecondTimer() {this->Restart();}
   void Restart() {
     start_time = GetEpochMicroSeconds();
   }
-  long long GetStartTime() const {
+  int64_t GetStartTime() const {
     return start_time;
   }
-  long long GetElapsedTime() const {
+  int64_t GetElapsedTime() const {
     return GetEpochMicroSeconds() - start_time;
   }
-  long long start_time;
+ private:
+  int64_t start_time;
 };
 
 }  // namespace quick
