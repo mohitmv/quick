@@ -45,6 +45,15 @@ configs.dependency_configs = [
                 srcs = ["src/file_utils_test.cpp"],
                 deps = ["src/file_utils"]),
 
+
+  br.CppLibrary("src/time",
+                hdrs = ["include/quick/time.hpp"]),
+
+  br.CppTest("src/time_test",
+                srcs = ["src/time_test.cpp"],
+                deps = ["src/time"]),
+
+
 ];
 
 

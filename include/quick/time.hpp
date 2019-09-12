@@ -23,7 +23,7 @@ public:
   long long GetStartTime() const {
     return start_time;
   }
-  void GetElapsedTime() const {
+  long long GetElapsedTime() const {
     return GetEpochMicroSeconds() - start_time;
   }
   long long start_time;
