@@ -9,35 +9,25 @@
 namespace quick {
 
 long long GetEpochMicroSeconds() {
-  using std::chrono;
+  using namespace std::chrono;
   auto epoch_time = system_clock::now().time_since_epoch();
   return duration_cast<milliseconds>(epoch_time).count();
 }
 
-
-
-
-// Possible use: `throw FileException(FileException::FAILED_TO_OPEN, file_name)`
-//                in case of exception during file reading.
-struct FileException : public std::exception {
-  enum ErrorType {UNKNOWN, FAILED_TO_OPEN, FAILED_TO_WRITE};
-  FileException();
-  explicit FileException(ErrorType type);
-  FileException(ErrorType type, const std::string& file_name);
-  virtual const char* what() const throw() {
-    return error_message.c_str();
+class MicroSecondTimer {
+public:
+  MicroSecondTimer() {this->Restart();}
+  void Restart() {
+    start_time = GetEpochMicroSeconds();
   }
-  ErrorType type = UNKNOWN;
-  std::string file_name;
-  std::string error_message;
-
- private:
-  void BuildErrorMessage();
+  long long GetStartTime() const {
+    return start_time;
+  }
+  void GetElapsedTime() const {
+    return GetEpochMicroSeconds() - start_time;
+  }
+  long long start_time;
 };
-
-std::string ReadFile(const std::string& file_name);
-
-void WriteFile(const std::string& file_name, const std::string& content);
 
 }  // namespace quick
 
