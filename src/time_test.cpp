@@ -9,13 +9,15 @@
 
 
 TEST(GetEpochMicroSeconds, Basic) {
-  EXPECT_GT(qk::GetEpochMicroSeconds(), 1568297419833LL);
+  std::cout << "Epoch MicroSeconds Now = " << qk::GetEpochMicroSeconds()
+            << std::endl;
+  EXPECT_GT(qk::GetEpochMicroSeconds(), 1568383815789882LL);
 }
 
 TEST(MicroSecondTimer, Basic) {
   qk::MicroSecondTimer timer;
   int64_t t1 = timer.GetStartTime();
-  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  std::this_thread::sleep_for(std::chrono::milliseconds(1));
   EXPECT_GT(timer.GetElapsedTime(), 0);
   EXPECT_EQ(t1, timer.GetStartTime());
   timer.Restart();
