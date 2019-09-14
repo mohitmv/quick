@@ -47,6 +47,13 @@ void InsertToVector(const Container1& input, Container2* output) {
   output->insert(output->end(), input.begin(), input.end());
 }
 
+template<typename Container1, typename Container2>
+void InsertToVectorMoving(Container1&& input, Container2* output) {
+  output->insert(output->end(),
+                 std::make_move_iterator(input.begin()),
+                 std::make_move_iterator(input.end()));
+}
+
 
 }  // namespace quick
 

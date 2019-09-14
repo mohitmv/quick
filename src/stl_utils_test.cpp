@@ -41,3 +41,29 @@ TEST(InsertToVector, Basic) {
   std::unordered_set<int> d(a.begin() + 5, a.end());
   EXPECT_EQ(d, c);
 }
+
+
+TEST(InsertToVectorMoving, Basic) {
+  std::vector<int> a = {5, 66};
+  std::vector<int> b = {76, 3, 66};
+  qk::InsertToVectorMoving(b, &a);
+  EXPECT_EQ(a.size(), 5);
+  struct A {
+    int data;
+    A(int data): data(data) {}  // NOLINT
+    A(const A&) = delete;
+    A& operator=(const A&) = delete;
+    A(A&&) = default;
+    A& operator=(A&&) = default;
+  };
+  std::vector<A> aa;
+  aa.emplace_back(11);
+  aa.emplace_back(22);
+  std::vector<A> bb;
+  bb.emplace_back(113);
+  bb.emplace_back(114);
+  bb.emplace_back(115);
+  qk::InsertToVectorMoving(bb, &aa);
+  EXPECT_EQ(aa.size(), 5);
+  EXPECT_EQ(aa[4].data, 115);
+}
