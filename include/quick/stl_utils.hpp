@@ -42,6 +42,10 @@ auto STLGetKeys(const MapContainer& input) {
   return output;
 }
 
+template<typename Container1, typename Container2>
+void InsertToVector(const Container1& input, Container2* output) {
+  output->insert(output->end(), input.begin(), input.end());
+}
 
 
 }  // namespace quick

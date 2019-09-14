@@ -58,6 +58,7 @@ configs.dependency_configs = [
 
 
 configs["CCFLAGS"] = "--std=c++14 -O0 -Wall -Wextra -Wno-sign-compare -fno-omit-frame-pointer -Wnon-virtual-dtor -mpopcnt -msse4.2 -g3 -Woverloaded-virtual -Wno-char-subscripts -Werror=deprecated-declarations -Wa,--compress-debug-sections -fdiagnostics-color=always ";
+configs["LINKFLAGS"] = ""
 
 if (os.environ.get("DEV_MACHINE") == "ts"):
   configs["CXX"] = "/usr/local/scaligent/toolchain/crosstool/v4/x86_64-unknown-linux-gnu/bin/x86_64-unknown-linux-gnu-g++";
