@@ -32,6 +32,17 @@ TEST(OstreamExtensionTest, Basic) {
                            "{age: [1300]}\n"
                            "(121, (133, [A1, B1, C1]))\n"
                            "{age: [1000]}\n";
-  ASSERT_EQ(oss.str(), expected_output);
+  EXPECT_EQ(oss.str(), expected_output);
+  struct S {
+    string s;
+    S(): s("My Value") {}
+    string DebugString() const {return s; }
+  };
+  pair<int, vector<S>> p5;
+  p5.first = 100;
+  p5.second.resize(3);
+  oss.str("");
+  oss << p5;
+  EXPECT_EQ(oss.str(), "(100, [My Value, My Value, My Value])");
 }
 

@@ -41,11 +41,11 @@ def Exit(message):
   print(message);
   exit(1);
 
-def CppSourceFilesList(configs):
+def CppSourceFilesList(configs, filter):
   internal_module_types = set(["CppProgram", "CppLibrary", "CppTest"]);
   files = set()
   for i in configs.dependency_configs:
-    if i["type"] in internal_module_types:
+    if i["type"] in internal_module_types and filter(i):
       files |= set(i["srcs"]);
       files |= set(i["hdrs"]);
   for i in files:
@@ -58,6 +58,7 @@ def CppSourceFilesList(configs):
       output.append(i);
   # print(output)
   return output;
+
 
 ###################### Build Utilities ########################
 

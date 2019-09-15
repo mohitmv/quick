@@ -14,7 +14,9 @@ def PreProcessDependencyConfigs(configs):
 
 def RunLintChecks(configs, files = None):
   if (files == None):
-    files = infra_lib.CppSourceFilesList(configs);
+    files = infra_lib.CppSourceFilesList(
+      configs,
+      filter = (lambda x: x.get("ignore_cpplint") != True));
   infra_lib.RunLinuxCommand(os.path.join(configs.toolchain_path + "/cpplint.py") + " --filter=-build/header_guard " + " ".join(files));
 
 def RunAllTests(configs, pp = 20, tests = None):

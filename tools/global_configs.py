@@ -53,6 +53,15 @@ configs.dependency_configs = [
                 srcs = ["src/time_test.cpp"],
                 deps = ["src/time"]),
 
+  br.CppProgram("tools/experiments/try",
+                ignore_cpplint = True,
+                srcs = ["tools/experiments/try.cpp"],
+                deps = []),
+
+  br.CppProgram("tools/experiments/try2",
+                ignore_cpplint = True,
+                srcs = ["tools/experiments/try2.cpp"],
+                deps = ["src/debug"]),
 
 ];
 

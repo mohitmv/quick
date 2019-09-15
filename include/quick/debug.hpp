@@ -71,10 +71,21 @@ std::ostream& PrintMap(std::ostream& os, const MapContainer& input) {
   os << "}";
   return os;
 }
+
+template<typename T, typename...> using FirstType = T;
+
 }  // namespace detail
 }  // namespace quick
 
 namespace std {
+
+template<typename T>
+quick::detail::FirstType<ostream, decltype(&T::DebugString)>& operator<<(
+    ostream& os,
+    const T& input) {
+  os << input.DebugString();
+  return os;
+}
 
 // Prints a std::pair
 template<typename T1, typename T2>
@@ -107,6 +118,8 @@ template<typename T1, typename T2>
 ostream& operator<<(ostream& os, const std::unordered_map<T1, T2>& input) {
   return quick::detail::PrintMap(os, input);
 }
+
+
 }  // namespace std
 
 #endif  // QUICK_DEBUG_HPP_
