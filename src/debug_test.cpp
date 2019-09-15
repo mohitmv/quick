@@ -46,3 +46,11 @@ TEST(OstreamExtensionTest, Basic) {
   EXPECT_EQ(oss.str(), "(100, [My Value, My Value, My Value])");
 }
 
+
+TEST(ToString, Basic) {
+  pair<int, pair<int, int>> p(110, {10, 44});
+  EXPECT_EQ(qk::ToString(p), "(110, (10, 44))");
+}
+
+
+

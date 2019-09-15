@@ -41,6 +41,7 @@
 #include <set>
 #include <unordered_set>
 #include <unordered_map>
+#include <string>
 
 namespace quick {
 namespace detail {
@@ -74,7 +75,16 @@ std::ostream& PrintMap(std::ostream& os, const MapContainer& input) {
 
 template<typename T, typename...> using FirstType = T;
 
+
 }  // namespace detail
+
+template<typename T>
+std::string ToString(const T& input) {
+  std::ostringstream oss;
+  oss << input;
+  return oss.str();
+}
+
 }  // namespace quick
 
 namespace std {
@@ -121,5 +131,7 @@ ostream& operator<<(ostream& os, const std::unordered_map<T1, T2>& input) {
 
 
 }  // namespace std
+
+namespace qk = quick;
 
 #endif  // QUICK_DEBUG_HPP_
