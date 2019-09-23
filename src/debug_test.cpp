@@ -44,6 +44,8 @@ TEST(OstreamExtensionTest, Basic) {
   oss.str("");
   oss << p5;
   EXPECT_EQ(oss.str(), "(100, [My Value, My Value, My Value])");
+  auto p = std::make_tuple(11, 22, false, vector<int>{10, 20, 30});
+  EXPECT_EQ(qk::ToString(p), "(11, 22, 0, [10, 20, 30])");
 }
 
 

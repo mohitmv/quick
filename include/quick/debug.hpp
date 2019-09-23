@@ -43,6 +43,7 @@
 #include <unordered_map>
 #include <string>
 #include <sstream>
+#include <tuple>
 
 namespace quick {
 namespace detail {
@@ -73,6 +74,32 @@ std::ostream& PrintMap(std::ostream& os, const MapContainer& input) {
   os << "}";
   return os;
 }
+
+template<typename... Ts>
+void PrintTupleImpl(std::ostream&,
+                    const std::tuple<Ts...>&,
+                    std::index_sequence<>) {}
+
+template<typename... Ts, std::size_t index_head, std::size_t... index_tail>
+void PrintTupleImpl(std::ostream& os,
+                    const std::tuple<Ts...>& input,
+                    std::index_sequence<index_head, index_tail...>) {
+  if (index_head > 0) {
+    os << ", ";
+  }
+  os << std::get<index_head>(input);
+  PrintTupleImpl(os, input, std::index_sequence<index_tail...>());
+}
+
+template<typename... Ts>
+void PrintTuple(std::ostream& os, const std::tuple<Ts...>& input) {
+  os << "(";
+  constexpr std::size_t num_elements
+                            = std::tuple_size<std::tuple<Ts...>>::value;
+  PrintTupleImpl(os, input, std::make_index_sequence<num_elements>());
+  os << ")";
+}
+
 
 template<typename T, typename...> using FirstType = T;
 
@@ -129,6 +156,15 @@ template<typename T1, typename T2>
 ostream& operator<<(ostream& os, const std::unordered_map<T1, T2>& input) {
   return quick::detail::PrintMap(os, input);
 }
+
+template<typename... Ts>
+ostream& operator<<(ostream& os, const std::tuple<Ts...>& input) {
+  quick::detail::PrintTuple(os, input);
+  return os;
+}
+
+
+
 
 
 }  // namespace std
