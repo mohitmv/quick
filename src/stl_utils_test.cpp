@@ -67,3 +67,29 @@ TEST(InsertToVectorMoving, Basic) {
   EXPECT_EQ(aa.size(), 5);
   EXPECT_EQ(aa[4].data, 115);
 }
+
+
+TEST(InsertToSet, Basic) {
+  std::unordered_set<int> a = {11, 12, 13, 14};
+  auto a2 = a;
+  std::unordered_set<int> b = {44, 55, 66, 77};
+  auto b2 = b;
+  auto union_set = qk::SetUnion(a, b);
+  EXPECT_EQ(a, a2);
+  EXPECT_EQ(b, b2);
+  EXPECT_EQ(union_set.size(), 8);
+  EXPECT_TRUE(qk::ContainsKey(union_set, 55));
+  EXPECT_TRUE(qk::ContainsKey(union_set, 13));
+  EXPECT_EQ(qk::SetUnion(std::set<int> {10, 20},
+                         std::unordered_set<int> {20, 30}),
+            (std::set<int> {10, 20, 30}));
+}
+
+
+
+
+
+
+
+
+

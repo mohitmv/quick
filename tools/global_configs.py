@@ -45,6 +45,20 @@ configs.dependency_configs = [
                 srcs = ["src/file_utils_test.cpp"],
                 deps = ["src/file_utils"]),
 
+  br.CppLibrary("src/hash",
+                hdrs = ["include/quick/hash.hpp"]),
+
+  br.CppTest("src/hash_test",
+                srcs = ["src/hash_test.cpp"],
+                deps = ["src/hash"]),
+
+  br.CppLibrary("src/unordered_map",
+                hdrs = ["include/quick/unordered_map.hpp"],
+                deps = ["src/hash"]),
+
+  br.CppTest("src/unordered_map_test",
+                srcs = ["src/unordered_map_test.cpp"],
+                deps = ["src/unordered_map"]),
 
   br.CppLibrary("src/time",
                 hdrs = ["include/quick/time.hpp"]),

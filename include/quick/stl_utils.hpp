@@ -12,9 +12,6 @@
 namespace quick {
 namespace detail {
 
-template<typename MapContainer>
-using MapKeysSet = std::unordered_set<typename MapContainer::key_type>;
-
 
 }
 
@@ -53,6 +50,20 @@ void InsertToVectorMoving(Container1&& input, Container2* output) {
                  std::make_move_iterator(input.begin()),
                  std::make_move_iterator(input.end()));
 }
+
+template<typename Container1, typename Container2>
+void InsertToSet(const Container1& input, Container2* output) {
+  output->insert(input.begin(), input.end());
+}
+
+template<typename Container1, typename Container2>
+Container1 SetUnion(const Container1& input1, const Container2& input2) {
+  Container1 output;
+  InsertToSet(input1, &output);
+  InsertToSet(input2, &output);
+  return output;
+}
+
 
 
 }  // namespace quick
