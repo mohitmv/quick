@@ -64,6 +64,32 @@ Container1 SetUnion(const Container1& input1, const Container2& input2) {
   return output;
 }
 
+template<typename Container1, typename Container2>
+Container1 SetMinus(const Container1& input1, const Container2& input2) {
+  Container1 output;
+  for (auto& item : input1) {
+    if (not quick::ContainsKey(input2, item)) {
+      output.insert(item);
+    }
+  }
+  return output;
+}
+
+template<typename Container>
+auto ToSet(const Container& input) {
+  std::set<typename Container::value_type> output(input.begin(),
+                                                  input.end());
+  return output;
+}
+
+template<typename Container>
+auto ToUnorderedSet(
+    const Container& input) {
+  std::unordered_set<typename Container::value_type> output(input.begin(),
+                                                            input.end());
+  return output;
+}
+
 
 
 }  // namespace quick

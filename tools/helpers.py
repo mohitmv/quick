@@ -17,7 +17,7 @@ def RunLintChecks(configs, files = None):
     files = infra_lib.CppSourceFilesList(
       configs,
       filter = (lambda x: x.get("ignore_cpplint") != True));
-  infra_lib.RunLinuxCommand(os.path.join(configs.toolchain_path + "/cpplint.py") + " --filter=-build/header_guard " + " ".join(files));
+  infra_lib.RunLinuxCommand(os.path.join(configs.toolchain_path + "/cpplint.py") + " --filter=-build/header_guard,-readability/alt_tokens " + " ".join(files));
 
 def RunAllTests(configs, pp = 20, tests = None):
   if (tests == None):

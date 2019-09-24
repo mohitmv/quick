@@ -65,7 +65,7 @@ def main():
     pass
   elif command == "lint":
     helpers.RunLintChecks(configs, (args if len(args) > 0 else None));
-  elif command == "run_test":
+  elif command in ["run_test", "rt"]:
     helpers.RunAllTests(configs, pp = 20, tests = (args if len(args) > 0 else None));
   elif command in ["per_commit_check", "pcc"]:
     helpers.RunLintChecks(configs);

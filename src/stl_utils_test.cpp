@@ -5,11 +5,13 @@
 
 #include <iostream>
 #include <unordered_map>
+#include <type_traits>
 
 #include "gtest/gtest.h"
 
 using std::unordered_set;
 using std::unordered_map;
+using std::set;
 using std::vector;
 
 TEST(ContainsKey, Basic) {
@@ -69,7 +71,7 @@ TEST(InsertToVectorMoving, Basic) {
 }
 
 
-TEST(InsertToSet, Basic) {
+TEST(SetUnion, Basic) {
   std::unordered_set<int> a = {11, 12, 13, 14};
   auto a2 = a;
   std::unordered_set<int> b = {44, 55, 66, 77};
@@ -88,8 +90,41 @@ TEST(InsertToSet, Basic) {
 
 
 
+TEST(SetMinus, Basic) {
+  unordered_set<int> a = {11, 22, 33, 44};
+  unordered_set<int> b = {11, 22, 66, 77};
+  unordered_set<int> c = qk::SetMinus(a, b);
+  EXPECT_EQ(a, (unordered_set<int> {11, 22, 33, 44}));
+  EXPECT_EQ(b, (unordered_set<int> {11, 22, 66, 77}));
+  EXPECT_EQ(c, (unordered_set<int> {33, 44}));
+}
 
+TEST(ToSet, Basic) {
+  unordered_set<int> a = {11, 22, 33, 44};
+  set<int> b = {11, 22, 66, 77};
+  vector<int> c = {30, 40, 50, 40};
+  auto a2 = quick::ToSet(a);
+  auto b2 = quick::ToSet(b);
+  auto c2 = quick::ToSet(c);
+  static_assert(std::is_same<decltype(a2), set<int>>::value, "Unexpected type");
+  EXPECT_EQ(a2, (set<int> {11, 22, 33, 44}));
+  EXPECT_EQ(b2, (set<int> {11, 22, 66, 77}));
+  EXPECT_EQ(c2, (set<int> {30, 40, 50}));
+}
 
+TEST(ToUnorderedSet, Basic) {
+  unordered_set<int> a = {11, 22, 33, 44};
+  set<int> b = {11, 22, 66, 77};
+  vector<int> c = {30, 40, 50, 40};
+  auto a2 = quick::ToUnorderedSet(a);
+  auto b2 = quick::ToUnorderedSet(b);
+  auto c2 = quick::ToUnorderedSet(c);
+  static_assert(std::is_same<decltype(a2), unordered_set<int>>::value,
+                "Unexpected type");
+  EXPECT_EQ(a2, (unordered_set<int> {11, 22, 33, 44}));
+  EXPECT_EQ(b2, (unordered_set<int> {11, 22, 66, 77}));
+  EXPECT_EQ(c2, (unordered_set<int> {30, 40, 50}));
+}
 
 
 
