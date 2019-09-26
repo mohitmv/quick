@@ -24,7 +24,7 @@ using std::make_tuple;
 
 using std::size_t;
 
-// testing qk::Hash for std::pair, enum.
+// testing qk::hash for std::pair, enum.
 TEST(HashTest, TestEnumAndPair) {
   enum Gender {MALE, FEMALE, OTHER_GENDER};
   qk::hash<pair<int, Gender>> hash_f1;
@@ -38,7 +38,7 @@ TEST(HashTest, TestEnumAndPair) {
   EXPECT_NE(h2, h3);
 }
 
-// testing qk::Hash for std::tuple, std::map.
+// testing qk::hash for std::tuple, std::map.
 TEST(HashTest, TestTupleAndMap) {
   using MyMap = std::map<pair<int, string>, string>;
   qk::hash<tuple<int, MyMap>> hash_f2;
@@ -55,8 +55,18 @@ TEST(HashTest, TestTupleAndMap) {
   EXPECT_NE(h1, h3);
 }
 
+// testing qk::hash for std::list.
+TEST(HashTest, TestLinkedList) {
+  using MyList = std::list<pair<int, string>>;
+  qk::hash<MyList> hash_f2;
+  auto h1 = hash_f2({{100, "Mohit"}, {200, "Saini"}, {300, "Mohit Saini"}});
+  auto h2 = hash_f2({{100, "Mohit"}, {200, "Mohit"}, {300, "Mohit Saini"}});
+  auto h3 = hash_f2({{100, "Mohit"}, {200, "Saini"}, {300, "Mohit Saini"}});
+  EXPECT_EQ(h1, h3);
+  EXPECT_NE(h1, h2);
+}
 
-// testing qk::Hash for custom defined types exposing GetHash method.
+// testing qk::hash for custom defined types exposing GetHash method.
 TEST(HashTest, TestCustomTypes) {
   // Sample custom defined class.
   struct Company {

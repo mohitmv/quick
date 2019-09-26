@@ -27,6 +27,7 @@
 #include <string>
 #include <map>
 #include <tuple>
+#include <list>
 
 namespace quick {
 namespace detail_hash_impl {
@@ -121,6 +122,13 @@ std::size_t TupleHash(const std::tuple<Ts...>& input) {
 template<typename T>
 struct hash<std::vector<T>> {
   std::size_t operator()(const std::vector<T>& t) const {
+    return OrderedSequenceHash(t);
+  }
+};
+
+template<typename T>
+struct hash<std::list<T>> {
+  std::size_t operator()(const std::list<T>& t) const {
     return OrderedSequenceHash(t);
   }
 };

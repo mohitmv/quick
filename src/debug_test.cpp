@@ -1,6 +1,8 @@
 // Copyright: 2019 Mohit Saini
 // Author: Mohit Saini (mohitsaini1196@gmail.com)
 
+#include "quick/debug.hpp"
+
 #include <map>
 #include <utility>
 #include <vector>
@@ -8,7 +10,6 @@
 #include <string>
 
 #include "gtest/gtest.h"
-#include "quick/debug.hpp"
 
 using std::make_pair;
 using std::map;
@@ -46,6 +47,10 @@ TEST(OstreamExtensionTest, Basic) {
   EXPECT_EQ(oss.str(), "(100, [My Value, My Value, My Value])");
   auto p = std::make_tuple(11, 22, false, vector<int>{10, 20, 30});
   EXPECT_EQ(qk::ToString(p), "(11, 22, 0, [10, 20, 30])");
+  std::list<pair<int, int>> p2 = {{11, 22}, {44, 55}, {44, 55}};
+  std::list<pair<int, int>> p4 = {};
+  EXPECT_EQ(qk::ToString(p2), "[(11, 22), (44, 55), (44, 55)]");
+  EXPECT_EQ(qk::ToString(p4), "[]");
 }
 
 

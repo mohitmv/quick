@@ -44,6 +44,7 @@
 #include <string>
 #include <sstream>
 #include <tuple>
+#include <list>
 
 namespace quick {
 namespace detail {
@@ -76,14 +77,14 @@ std::ostream& PrintMap(std::ostream& os, const MapContainer& input) {
 }
 
 template<typename... Ts>
-void PrintTupleImpl(std::ostream&,
-                    const std::tuple<Ts...>&,
-                    std::index_sequence<>) {}
+inline void PrintTupleImpl(std::ostream&,
+                           const std::tuple<Ts...>&,
+                           std::index_sequence<>) {}
 
 template<typename... Ts, std::size_t index_head, std::size_t... index_tail>
-void PrintTupleImpl(std::ostream& os,
-                    const std::tuple<Ts...>& input,
-                    std::index_sequence<index_head, index_tail...>) {
+inline void PrintTupleImpl(std::ostream& os,
+                           const std::tuple<Ts...>& input,
+                           std::index_sequence<index_head, index_tail...>) {
   if (index_head > 0) {
     os << ", ";
   }
@@ -134,6 +135,11 @@ ostream& operator<<(ostream& os, const std::pair<T1, T2>& input) {
 
 template<typename T>
 ostream& operator<<(ostream& os, const std::vector<T>& input) {
+  return quick::detail::PrintContainer(os, input);
+}
+
+template<typename T>
+ostream& operator<<(ostream& os, const std::list<T>& input) {
   return quick::detail::PrintContainer(os, input);
 }
 
