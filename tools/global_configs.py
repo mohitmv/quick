@@ -34,8 +34,16 @@ configs.dependency_configs = [
              deps = ["tests/test_main",
                      "src/debug"]),
 
+  br.CppTest("src/alias_test",
+             srcs = ["src/alias_test.cpp"],
+             deps = ["tests/test_main",
+                     "src/alias"]),
+
   br.CppLibrary("src/debug",
                 hdrs = ["include/quick/debug.hpp"]),
+
+  br.CppLibrary("src/alias",
+                hdrs = ["include/quick/alias.hpp"]),
 
   br.CppLibrary("src/file_utils",
                 hdrs = ["include/quick/file_utils.hpp"],
