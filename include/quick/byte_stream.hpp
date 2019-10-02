@@ -180,7 +180,7 @@ ByteStream& operator>>(ByteStream& bs, std::pair<T1, T2>& output) {
 // }
 
 template<typename T>
-quick::first_type<ByteStream, decltype(&T::Serialize)>&
+std::enable_if_t<std::is_same<void, decltype(T::Serialize(const T&, OByteStream&))>::value, ByteStream>&
 operator<<(ByteStream& bs, const T& input) {
   input.Serialize(static_cast<OByteStream&>(bs));
   return bs;
