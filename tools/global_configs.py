@@ -21,23 +21,20 @@ configs.dependency_configs = [
                       srcs = [toolchain_path + "/json11-master/json/json11.cpp"],
                       global_include_dir = [ toolchain_path + "/json11-master"]),
 
-  br.CppTest("src/stl_utils_test",
-             srcs = ["src/stl_utils_test.cpp"],
-             deps = ["tests/test_main",
-                     "src/stl_utils"]),
+  br.CppProgram("tools/experiments/try",
+                ignore_cpplint = True,
+                srcs = ["tools/experiments/try.cpp"],
+                deps = []),
+
+  br.CppProgram("tools/experiments/try2",
+                ignore_cpplint = True,
+                srcs = ["tools/experiments/try2.cpp"],
+                deps = ["src/debug"]),
+
+
 
   br.CppLibrary("src/stl_utils",
                 hdrs = ["include/quick/stl_utils.hpp"]),
-
-  br.CppTest("src/debug_test",
-             srcs = ["src/debug_test.cpp"],
-             deps = ["tests/test_main",
-                     "src/debug"]),
-
-  br.CppTest("src/alias_test",
-             srcs = ["src/alias_test.cpp"],
-             deps = ["tests/test_main",
-                     "src/alias"]),
 
   br.CppLibrary("src/debug",
                 hdrs = ["include/quick/debug.hpp"]),
@@ -49,41 +46,56 @@ configs.dependency_configs = [
                 hdrs = ["include/quick/file_utils.hpp"],
                 srcs = ["src/file_utils.cpp"]),
 
-  br.CppTest("src/file_utils_test",
-                srcs = ["src/file_utils_test.cpp"],
-                deps = ["src/file_utils"]),
-
   br.CppLibrary("src/hash",
                 hdrs = ["include/quick/hash.hpp"]),
-
-  br.CppTest("src/hash_test",
-                srcs = ["src/hash_test.cpp"],
-                deps = ["src/hash"]),
 
   br.CppLibrary("src/unordered_map",
                 hdrs = ["include/quick/unordered_map.hpp"],
                 deps = ["src/hash"]),
 
-  br.CppTest("src/unordered_map_test",
-                srcs = ["src/unordered_map_test.cpp"],
-                deps = ["src/unordered_map"]),
-
   br.CppLibrary("src/time",
                 hdrs = ["include/quick/time.hpp"]),
 
-  br.CppTest("src/time_test",
-                srcs = ["src/time_test.cpp"],
-                deps = ["src/time"]),
-
-  br.CppProgram("tools/experiments/try",
-                ignore_cpplint = True,
-                srcs = ["tools/experiments/try.cpp"],
+  br.CppLibrary("src/byte_stream",
+                hdrs = ["include/quick/byte_stream.hpp"],
                 deps = []),
 
-  br.CppProgram("tools/experiments/try2",
-                ignore_cpplint = True,
-                srcs = ["tools/experiments/try2.cpp"],
-                deps = ["src/debug"]),
+
+
+  br.CppTest("tests/byte_stream_test",
+             srcs = ["tests/byte_stream_test.cpp"],
+             deps = ["src/byte_stream"]),
+
+  br.CppTest("tests/stl_utils_test",
+             srcs = ["tests/stl_utils_test.cpp"],
+             deps = ["src/stl_utils"]),
+
+
+  br.CppTest("tests/debug_test",
+             srcs = ["tests/debug_test.cpp"],
+             deps = ["src/debug"]),
+
+  br.CppTest("tests/alias_test",
+             srcs = ["tests/alias_test.cpp"],
+             deps = ["src/alias"]),
+
+
+  br.CppTest("tests/file_utils_test",
+                srcs = ["tests/file_utils_test.cpp"],
+                deps = ["src/file_utils"]),
+
+  br.CppTest("tests/hash_test",
+                srcs = ["tests/hash_test.cpp"],
+                deps = ["src/hash"]),
+
+
+  br.CppTest("tests/unordered_map_test",
+                srcs = ["tests/unordered_map_test.cpp"],
+                deps = ["src/unordered_map"]),
+
+  br.CppTest("tests/time_test",
+                srcs = ["tests/time_test.cpp"],
+                deps = ["src/time"]),
 
 ];
 
