@@ -47,6 +47,8 @@ def main():
     else:
       branch = configs.active_remote_branch;
     infra_lib.RunLinuxCommand("git add '*'; git commit -m 'Some Change' ; git push origin HEAD:" + branch);
+  elif command == "pull":
+    infra_lib.RunLinuxCommand("git pull origin " + branch);
   elif command == "remote_branch":
     return configs.active_remote_branch;
   elif command == "local_setup":
