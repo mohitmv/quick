@@ -15,6 +15,8 @@
 #include <list>
 #include <tuple>
 #include <utility>
+#include <map>
+#include <unordered_map>
 
 #include "quick/type_traits.hpp"
 
@@ -22,7 +24,7 @@ namespace quick {
 namespace detail {
 inline bool IsLittleEndianSystem() {
   uint32_t tmp = {0x01020304};
-  return (((char*)(&tmp))[0] == 4);
+  return ((reinterpret_cast<uint8_t*>(&tmp))[0] == 4);
 }
 static const bool is_little_endian_system = IsLittleEndianSystem();
 }
@@ -36,6 +38,7 @@ class ByteStream {
   static constexpr bool little_endian_storage = true;
   std::string str_value;
   int read_ptr = 0;
+
  public:
   const std::string& str() const {
     return str_value;
@@ -43,11 +46,14 @@ class ByteStream {
   void str(const std::string& str_value) {
     this->str_value = str_value;
   }
+  bool end() const {
+    return (read_ptr >= str_value.size());
+  }
 
   template<typename T>
   std::enable_if_t<(std::is_fundamental<T>::value ||
-                    std::is_enum<T>::value
-                   ), ByteStream>& operator<<(const T& input) {
+                    std::is_enum<T>::value), ByteStream>&
+  operator<<(const T& input) {
     int len = str_value.size();
     str_value.resize(len + sizeof(T));
     const auto* input_ptr = reinterpret_cast<const uint8_t*>(&input);
@@ -63,13 +69,12 @@ class ByteStream {
 
   template<typename T>
   std::enable_if_t<(std::is_fundamental<T>::value ||
-                    std::is_enum<T>::value
-                   ), ByteStream>& operator>>(T& output) {
+                    std::is_enum<T>::value), ByteStream>&
+  operator>>(T& output) {
     int len = str_value.size();
     if (read_ptr + sizeof(T) > len) {
       throw Error {Error::INVALID_READ};
     }
-    str_value.resize(len + sizeof(T));
     auto* output_ptr = reinterpret_cast<uint8_t*>(&output);
     if (little_endian_storage == detail::is_little_endian_system) {
       std::memcpy(output_ptr, &str_value[read_ptr], sizeof(T));
@@ -124,7 +129,7 @@ void SerializeTuple(
 
 template<std::size_t I, typename... Ts>
 std::enable_if_t<(I < sizeof...(Ts))>
-SerializeTuple(ByteStream& bs,
+SerializeTuple(ByteStream& bs,  // NOLINT
                const std::tuple<Ts...>& input,
                std::index_sequence<I>) {
   bs << std::get<I>(input);
@@ -139,8 +144,8 @@ void DeserializeTuple(
 
 template<std::size_t I, typename... Ts>
 std::enable_if_t<(I < sizeof...(Ts))>
-DeserializeTuple(ByteStream& bs,
-               std::tuple<Ts...>& output,
+DeserializeTuple(ByteStream& bs,  // NOLINT
+               std::tuple<Ts...>& output,  // NOLINT
                std::index_sequence<I>) {
   bs >> std::get<I>(output);
   DeserializeTuple(bs, output, std::index_sequence<I+1>());
@@ -177,9 +182,7 @@ std::enable_if_t<
   std::is_same<void,
                decltype(
                  std::declval<const T&>().Serialize(
-                   std::declval<OByteStream&>()
-                 )
-               )>::value,
+                   std::declval<OByteStream&>()))>::value,
   ByteStream>& operator<<(ByteStream& bs, const T& input) {
   input.Serialize(static_cast<OByteStream&>(bs));
   return bs;
@@ -190,9 +193,7 @@ std::enable_if_t<
   std::is_same<void,
                decltype(
                  std::declval<T&>().Deserialize(
-                   std::declval<IByteStream&>()
-                 )
-               )>::value,
+                   std::declval<IByteStream&>()))>::value,
   ByteStream>& operator>>(ByteStream& bs, T& output) {
   output.Deserialize(static_cast<IByteStream&>(bs));
   return bs;
@@ -202,10 +203,10 @@ template<typename T>
 std::enable_if_t<(quick::is_specialization<T, std::vector>::value ||
                   quick::is_specialization<T, std::list>::value ||
                   quick::is_specialization<T, std::unordered_set>::value ||
-                  quick::is_specialization<T, std::set>::value
-                 ), ByteStream>& operator<<(ByteStream& bs, const T& input) {
+                  quick::is_specialization<T, std::set>::value), ByteStream>&
+operator<<(ByteStream& bs, const T& input) {
   bs << static_cast<uint64_t>(input.size());
-  for (const auto& item: input) {
+  for (const auto& item : input) {
     bs << item;
   }
   return bs;
@@ -213,10 +214,11 @@ std::enable_if_t<(quick::is_specialization<T, std::vector>::value ||
 
 template<typename T>
 std::enable_if_t<(quick::is_specialization<T, std::map>::value ||
-                  quick::is_specialization<T, std::unordered_map>::value
-                 ), ByteStream>& operator<<(ByteStream& bs, const T& input) {
+                  quick::is_specialization<T, std::unordered_map>::value),
+                 ByteStream>&
+operator<<(ByteStream& bs, const T& input) {
   bs << static_cast<uint64_t>(input.size());
-  for (const auto& item: input) {
+  for (const auto& item : input) {
     bs << item.first << item.second;
   }
   return bs;
@@ -224,8 +226,9 @@ std::enable_if_t<(quick::is_specialization<T, std::map>::value ||
 
 template<typename T>
 std::enable_if_t<(quick::is_specialization<T, std::map>::value ||
-                  quick::is_specialization<T, std::unordered_map>::value
-                 ), ByteStream>& operator>>(ByteStream& bs, T& output) {
+                  quick::is_specialization<T, std::unordered_map>::value),
+                 ByteStream>&
+operator>>(ByteStream& bs, T& output) {
   uint64_t container_size;
   bs >> container_size;
   output.clear();
@@ -233,7 +236,7 @@ std::enable_if_t<(quick::is_specialization<T, std::map>::value ||
     typename T::key_type k;
     typename T::mapped_type v;
     bs >> k >> v;
-    output.emplace(std::pair(k, v));
+    output.emplace(std::make_pair(k, v));
   }
   return bs;
 }
@@ -254,8 +257,8 @@ ByteStream& operator>>(ByteStream& bs, std::vector<T>& output) {
 template<typename T>
 std::enable_if_t<(quick::is_specialization<T, std::list>::value ||
                   quick::is_specialization<T, std::unordered_set>::value ||
-                  quick::is_specialization<T, std::set>::value
-                 ), ByteStream>& operator>>(ByteStream& bs, T& output) {
+                  quick::is_specialization<T, std::set>::value), ByteStream>&
+operator>>(ByteStream& bs, T& output) {
   uint64_t container_size;
   bs >> container_size;
   output.clear();
