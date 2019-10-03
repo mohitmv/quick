@@ -39,6 +39,8 @@ TEST(ByteStream, Basic) {
   vector<set<string>> s1 = {{"1.111", "1.222"}, {"2.111", "2.222"}}, ss1;
   vector<pair<int, tuple<int, float, bool>>> vp1 =
                                {{444, std::make_tuple(33, 44.8f, true)}}, vp2;
+  unordered_map<int, map<string>> m2, m1 = {{11, {"aa", "bb"}}, {22, {"cc", "dd"}}};
+
 
   OByteStream obs;
   obs << v  << x  << s  << d  << z <<  y <<  s1  << q <<  vp1;
