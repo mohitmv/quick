@@ -172,24 +172,29 @@ ByteStream& operator>>(ByteStream& bs, std::pair<T1, T2>& output) {
   return bs;
 }
 
-// template<typename T>
-// quick::first_type<ByteStream, decltype(&T::Serialize)>&
-// operator<<(ByteStream& bs, const T& input) {
-//   input.Serialize(static_cast<OByteStream&>(bs));
-//   return bs;
-// }
-
 template<typename T>
-std::enable_if_t<std::is_same<void, decltype(T::Serialize(const T&, OByteStream&))>::value, ByteStream>&
-operator<<(ByteStream& bs, const T& input) {
+std::enable_if_t<
+  std::is_same<void,
+               decltype(
+                 std::declval<const T&>().Serialize(
+                   std::declval<OByteStream&>()
+                 )
+               )>::value,
+  ByteStream>& operator<<(ByteStream& bs, const T& input) {
   input.Serialize(static_cast<OByteStream&>(bs));
   return bs;
 }
 
 template<typename T>
-quick::first_type<ByteStream, decltype(&T::Deserialize)>&
-operator>>(ByteStream& bs, T& input) {
-  input.Deserialize(static_cast<IByteStream&>(bs));
+std::enable_if_t<
+  std::is_same<void,
+               decltype(
+                 std::declval<T&>().Deserialize(
+                   std::declval<IByteStream&>()
+                 )
+               )>::value,
+  ByteStream>& operator>>(ByteStream& bs, T& output) {
+  output.Deserialize(static_cast<IByteStream&>(bs));
   return bs;
 }
 
@@ -205,6 +210,34 @@ std::enable_if_t<(quick::is_specialization<T, std::vector>::value ||
   }
   return bs;
 }
+
+template<typename T>
+std::enable_if_t<(quick::is_specialization<T, std::map>::value ||
+                  quick::is_specialization<T, std::unordered_map>::value
+                 ), ByteStream>& operator<<(ByteStream& bs, const T& input) {
+  bs << static_cast<uint64_t>(input.size());
+  for (const auto& item: input) {
+    bs << item.first << item.second;
+  }
+  return bs;
+}
+
+template<typename T>
+std::enable_if_t<(quick::is_specialization<T, std::map>::value ||
+                  quick::is_specialization<T, std::unordered_map>::value
+                 ), ByteStream>& operator>>(ByteStream& bs, T& output) {
+  uint64_t container_size;
+  bs >> container_size;
+  output.clear();
+  for (int i = 0; i < container_size; i++) {
+    typename T::key_type k;
+    typename T::mapped_type v;
+    bs >> k >> v;
+    output.emplace(std::pair(k, v));
+  }
+  return bs;
+}
+
 
 
 template<typename T>

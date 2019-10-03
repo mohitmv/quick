@@ -83,7 +83,5 @@ TEST(ByteStream, ClassMethod) {
   EXPECT_EQ(s1, s2);
   EXPECT_EQ(num, 200);
   EXPECT_EQ(tmp_str, "Abc");
-  cout << s1.p << endl;
-  cout << tmp_str << endl;
 }
 
