@@ -151,6 +151,29 @@ DeserializeTuple(ByteStream& bs,  // NOLINT
   DeserializeTuple(bs, output, std::index_sequence<I+1>());
 }
 
+template<typename MapType>
+ByteStream& SerializeMap(ByteStream& bs, const MapType& input) {
+  bs << static_cast<uint64_t>(input.size());
+  for (const auto& item : input) {
+    bs << item.first << item.second;
+  }
+  return bs;
+}
+
+template<typename MapType>
+ByteStream& DeserializeMap(ByteStream& bs, MapType& output) {
+  uint64_t container_size;
+  bs >> container_size;
+  output.clear();
+  for (int i = 0; i < container_size; i++) {
+    typename MapType::key_type k;
+    typename MapType::mapped_type v;
+    bs >> k >> v;
+    output.emplace(std::make_pair(k, v));
+  }
+  return bs;
+}
+
 }  // namespace detail
 
 template<typename... Ts>
@@ -212,16 +235,24 @@ operator<<(ByteStream& bs, const T& input) {
   return bs;
 }
 
-template<typename T>
-std::enable_if_t<(quick::is_specialization<T, std::map>::value ||
-                  quick::is_specialization<T, std::unordered_map>::value),
-                 ByteStream>&
-operator<<(ByteStream& bs, const T& input) {
-  bs << static_cast<uint64_t>(input.size());
-  for (const auto& item : input) {
-    bs << item.first << item.second;
-  }
-  return bs;
+template<typename... Ts>
+ByteStream& operator<<(ByteStream& bs, const std::unordered_map<Ts...>& input) {
+  return detail::SerializeMap(bs, input);
+}
+
+template<typename... Ts>
+ByteStream& operator<<(ByteStream& bs, const std::map<Ts...>& input) {
+  return detail::SerializeMap(bs, input);
+}
+
+template<typename... Ts>
+ByteStream& operator>>(ByteStream& bs, std::unordered_map<Ts...>& output) {
+  return detail::DeserializeMap(bs, output);
+}
+
+template<typename... Ts>
+ByteStream& operator>>(ByteStream& bs, std::map<Ts...>& output) {
+  return detail::DeserializeMap(bs, output);
 }
 
 template<typename T>
@@ -240,8 +271,6 @@ operator>>(ByteStream& bs, T& output) {
   }
   return bs;
 }
-
-
 
 template<typename T>
 ByteStream& operator>>(ByteStream& bs, std::vector<T>& output) {
@@ -269,8 +298,6 @@ operator>>(ByteStream& bs, T& output) {
   }
   return bs;
 }
-
-
 
 
 }  // namespace quick
