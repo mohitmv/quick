@@ -152,7 +152,7 @@ DeserializeTuple(ByteStream& bs,  // NOLINT
 }
 
 template<typename MapType>
-ByteStream& SerializeMap(ByteStream& bs, const MapType& input) {
+ByteStream& SerializeMap(ByteStream& bs, const MapType& input) {  // NOLINT
   bs << static_cast<uint64_t>(input.size());
   for (const auto& item : input) {
     bs << item.first << item.second;
@@ -161,7 +161,7 @@ ByteStream& SerializeMap(ByteStream& bs, const MapType& input) {
 }
 
 template<typename MapType>
-ByteStream& DeserializeMap(ByteStream& bs, MapType& output) {
+ByteStream& DeserializeMap(ByteStream& bs, MapType& output) {  // NOLINT
   uint64_t container_size;
   bs >> container_size;
   output.clear();

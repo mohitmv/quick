@@ -198,10 +198,17 @@ struct hash<T, quick::detail_hash_impl::void_t<decltype(&T::GetHash)>> {
   }
 };
 
+// Deprecated; use `HashFunction` instead.
 template<typename T>
 inline std::size_t HashF(const T& input) {
   return quick::hash<T>()(input);
 }
+
+template<typename T>
+inline std::size_t HashFunction(const T& input) {
+  return quick::hash<T>()(input);
+}
+
 
 }  // namespace quick
 
