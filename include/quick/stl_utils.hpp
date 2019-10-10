@@ -8,6 +8,7 @@
 #include <unordered_set>
 #include <set>
 #include <vector>
+#include <map>
 
 namespace quick {
 namespace detail {
@@ -57,6 +58,12 @@ void InsertToSet(const Container1& input, Container2* output) {
 }
 
 template<typename Container1, typename Container2>
+void InsertToMap(const Container1& input, Container2* output) {
+  output->insert(input.begin(), input.end());
+}
+
+
+template<typename Container1, typename Container2>
 Container1 SetUnion(const Container1& input1, const Container2& input2) {
   Container1 output;
   InsertToSet(input1, &output);
@@ -79,6 +86,14 @@ template<typename Container>
 auto ToSet(const Container& input) {
   std::set<typename Container::value_type> output(input.begin(),
                                                   input.end());
+  return output;
+}
+
+template<typename Container>
+auto ToMap(const Container& input) {
+  using OutputType = std::map<typename Container::key_type,
+                              typename Container::mapped_type>;
+  OutputType output(input.begin(), input.end());
   return output;
 }
 
