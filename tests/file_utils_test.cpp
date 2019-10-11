@@ -12,7 +12,9 @@ using std::string;
 TEST(ReadWriteFile, Basic) {
   string str = "This is the content of this file";
   qk::WriteFile("/tmp/abx887.txt", str);
+  EXPECT_TRUE(qk::DoesFileExist("/tmp/abx887.txt"));
   EXPECT_EQ(qk::ReadFile("/tmp/abx887.txt"), str);
+  EXPECT_FALSE(qk::DoesFileExist("/tmp/abx887/rr/tt/ww/qq/rr/ttt.txt"));
 }
 
 TEST(FileException, Basic) {

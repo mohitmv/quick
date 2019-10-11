@@ -60,6 +60,12 @@ void WriteFile(const std::string& file_name, const std::string& content) {
   fd.close();
 }
 
+bool DoesFileExist(const std::string& file_name) {
+    std::ifstream infile(file_name);
+    return infile.good();
+}
+
+
 }  // namespace quick
 
 

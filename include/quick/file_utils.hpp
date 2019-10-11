@@ -34,6 +34,8 @@ std::string ReadFile(const std::string& file_name);
 
 void WriteFile(const std::string& file_name, const std::string& content);
 
+bool DoesFileExist(const std::string& file_name);
+
 }  // namespace quick
 
 namespace qk = quick;
