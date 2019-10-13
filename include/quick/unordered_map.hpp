@@ -18,11 +18,11 @@ template <class Key,
           typename Hasher = quick::hash<Key>,
           typename Pred = std::equal_to<Key>,
           typename Alloc = std::allocator<std::pair<const Key, T>>>
-class unordered_map : public std::unordered_map<Key,
-                                                T,
-                                                Hasher,
-                                                Pred,
-                                                Alloc> {};
+using unordered_map = std::unordered_map<Key,
+                                          T,
+                                          Hasher,
+                                          Pred,
+                                          Alloc>;
 
 }  // namespace quick
 

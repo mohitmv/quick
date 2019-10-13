@@ -9,6 +9,8 @@
 #include <set>
 #include <vector>
 #include <map>
+#include <string>
+#include <sstream>
 
 namespace quick {
 namespace detail {
@@ -106,6 +108,20 @@ auto ToUnorderedSet(
 }
 
 
+template<typename T>
+std::string StringJoin(const T& container, const std::string& join_by = " ") {
+  std::ostringstream oss;
+  bool is_first = true;
+  for (auto& item : container) {
+    if (not is_first) {
+      oss << join_by;
+    } else {
+      is_first = false;
+    }
+    oss << item;
+  }
+  return oss.str();
+}
 
 }  // namespace quick
 
