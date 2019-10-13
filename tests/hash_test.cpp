@@ -36,6 +36,7 @@ TEST(HashTest, TestEnumAndPair) {
   EXPECT_NE(h1, h2);
   EXPECT_NE(h1, h3);
   EXPECT_NE(h2, h3);
+  EXPECT_EQ(qk::HashFunction(FEMALE), 1ULL);
 }
 
 // testing qk::hash for std::tuple, std::map.
