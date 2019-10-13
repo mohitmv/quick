@@ -35,6 +35,29 @@ void STLGetKeys(const MapContainer& input, OutputContainer* output) {
   }
 }
 
+template<typename MapContainer, typename OutputContainer>
+void GetValues(const MapContainer& input, OutputContainer* output) {
+  for (auto& item : input) {
+    output->insert(item.second);
+  }
+}
+
+template<typename MapContainer>
+inline auto GetValuesSet(const MapContainer& input) {
+  std::set<typename MapContainer::mapped_type> output;
+  GetValues(input, &output);
+  return output;
+}
+
+template<typename MapContainer>
+inline auto GetValuesVector(const MapContainer& input) {
+  std::vector<typename MapContainer::mapped_type> output;
+  for (auto& item : input) {
+    output.push_back(item.second);
+  }
+  return output;
+}
+
 template<typename MapContainer>
 auto STLGetKeys(const MapContainer& input) {
   std::unordered_set<typename MapContainer::key_type> output;

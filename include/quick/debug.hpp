@@ -133,33 +133,33 @@ ostream& operator<<(ostream& os, const std::pair<T1, T2>& input) {
   return os;
 }
 
-template<typename T>
-ostream& operator<<(ostream& os, const std::vector<T>& input) {
+template<typename... Ts>
+ostream& operator<<(ostream& os, const std::vector<Ts...>& input) {
   return quick::detail::PrintContainer(os, input);
 }
 
-template<typename T>
-ostream& operator<<(ostream& os, const std::list<T>& input) {
+template<typename... Ts>
+ostream& operator<<(ostream& os, const std::list<Ts...>& input) {
   return quick::detail::PrintContainer(os, input);
 }
 
-template<typename T>
-ostream& operator<<(ostream& os, const std::unordered_set<T>& input) {
+template<typename... Ts>
+ostream& operator<<(ostream& os, const std::unordered_set<Ts...>& input) {
   return quick::detail::PrintContainer(os, input);
 }
 
-template<typename T>
-ostream& operator<<(ostream& os, const std::set<T>& input) {
+template<typename... Ts>
+ostream& operator<<(ostream& os, const std::set<Ts...>& input) {
   return quick::detail::PrintContainer(os, input);
 }
 
-template<typename T1, typename T2>
-ostream& operator<<(ostream& os, const std::map<T1, T2>& input) {
+template<typename... Ts>
+ostream& operator<<(ostream& os, const std::map<Ts...>& input) {
   return quick::detail::PrintMap(os, input);
 }
 
-template<typename T1, typename T2>
-ostream& operator<<(ostream& os, const std::unordered_map<T1, T2>& input) {
+template<typename... Ts>
+ostream& operator<<(ostream& os, const std::unordered_map<Ts...>& input) {
   return quick::detail::PrintMap(os, input);
 }
 
