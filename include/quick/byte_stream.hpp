@@ -240,7 +240,8 @@ ByteStream& operator>>(ByteStream& bs, std::unordered_map<K, Ts...>& output) {
   output.reserve(container_size);
   K k;
   for (int i = 0; i < container_size; i++) {
-    bs >> k >> output[k];
+    bs >> k;
+    bs >> output[k];
   }
   return bs;
 }
@@ -252,7 +253,8 @@ ByteStream& operator>>(ByteStream& bs, std::map<K, Ts...>& output) {
   output.clear();
   K k;
   for (int i = 0; i < container_size; i++) {
-    bs >> k >> output[k];
+    bs >> k;
+    bs >> output[k];
   }
   return bs;
 }

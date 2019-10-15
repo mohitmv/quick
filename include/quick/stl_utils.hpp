@@ -107,6 +107,32 @@ Container1 SetMinus(const Container1& input1, const Container2& input2) {
   return output;
 }
 
+template<typename Container1, typename Container2>
+bool IsSubset(const Container1& input1, const Container2& input2) {
+  for (auto& item : input1) {
+    if (not quick::ContainsKey(input2, item)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+template<typename Container1, typename Container2>
+bool IsDisjoint(const Container1& input1, const Container2& input2) {
+  auto* s1 = &input1;
+  auto* s2 = &input2;
+  if (input1.size() > input2.size()) {
+    std::swap(s1, s2);
+  }
+  for (auto& item : *s1) {
+    if (quick::ContainsKey(*s2, item)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+
 template<typename Container>
 auto ToSet(const Container& input) {
   std::set<typename Container::value_type> output(input.begin(),
@@ -129,7 +155,6 @@ auto ToUnorderedSet(
                                                             input.end());
   return output;
 }
-
 
 template<typename T>
 std::string StringJoin(const T& container, const std::string& join_by = " ") {

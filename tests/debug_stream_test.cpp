@@ -8,6 +8,9 @@
 #include <vector>
 #include <set>
 #include <string>
+#include <iostream>
+
+#include <quick/unordered_map.hpp>
 
 #include "gtest/gtest.h"
 
@@ -19,51 +22,261 @@ using std::string;
 using std::unordered_set;
 using std::unordered_map;
 using std::vector;
+using std::cout;
+using std::endl;
+
+
+// To generate C++ string to enforce a EXPECT_EQ, follow these step
+// 1. Do `cout << ds.str() << endl` and print the output. Copy paste the output
+//    in python string using `"""`.
+// 2. Run this print command and paste in this test file.
+//
+// a = """<output>"""
+// print("\n".join('"'+i+"\\n"+'"' for i in a.split("\n")))
 
 TEST(DebugStreamTest, Basic) {
-  quick::DebugStream ds;
-  ds << "mohit";
+  using quick::DebugStream;
+  string expected_output;
 
+  {
+    quick::DebugStream ds;
+    enum {UU, PP};
+    ds.BranchStart('[');
+    ds << make_pair(44, 55) << "\n\n";
+    {
+      ds.SetInlineForThisScope(true);
+      ds << "mohit" << make_pair(44, 55);
+      ds << "saini\n\n";
+      {
+        ds.SetIndentationForThisScope(4);
+        ds << "mohit\nsaini\nand mohit\nsaini\n";
+        ds << UU << ", " << PP;
+      }  // IndentationSpace restored.
+      ds << "\n\nsaini\n\n";
+    }  // is_inline restored
+    ds.BranchEnd(']');
+    ds << "\n\n" << make_pair(44, 55);
+    expected_output =
+        "[\n"
+        "  (\n"
+        "    44, 55\n"
+        "  )\n"
+        "  \n"
+        "  mohit(\n"
+        "    44, 55\n"
+        "  )saini\n"
+        "  \n"
+        "  mohit\n"
+        "  saini\n"
+        "  and mohit\n"
+        "  saini\n"
+        "  ENUM-0, ENUM-1\n"
+        "  \n"
+        "  saini\n"
+        "  \n"
+        "  \n"
+        "]\n\n"
+        "(\n"
+        "  44, 55\n"
+        ")";
+    EXPECT_EQ(ds.str(), expected_output);
+  }
+  {
+    quick::DebugStream ds;
+    ds << "mohit\n\n";
+    ds << 'e';
+    ds << "\n\n";
+    ds << 11198996464646446;
+    ds.BranchStart('{');
+    ds << "Mohit\n\nSaini\n\n";
+    string s = "Mohit\n\nSaini";
+    ds << s;
+    ds.BranchEnd('}');
+    ds << s;
+    ds << "\n\n";
+    ds << make_pair(make_pair(44, 55), make_pair(7744, 5599));
+    expected_output =
+          "mohit\n\n"
+          "e\n\n"
+          "11198996464646446{\n"
+          "  Mohit\n"
+          "  \n"
+          "  Saini\n"
+          "  \n"
+          "  Mohit\n"
+          "  \n"
+          "  Saini\n"
+          "}Mohit\n\n"
+          "Saini\n"
+          "\n"
+          "(\n"
+          "  (\n"
+          "    44, 55\n"
+          "  ), (\n"
+          "    7744, 5599\n"
+          "  )\n"
+          ")";
+    EXPECT_EQ(ds.str(), expected_output);
+  }
+  {
+    quick::DebugStream ds;
+    vector<vector<int>> v1 = {{11, 22}, {44, 55}};
+    map<string, set<int>> map1 = {{"age", {1300}}, {"sage", {33, 55, 66}}};
+    pair<int, pair<int, vector<string>>> p3;
+    p3 = make_pair(121, make_pair(133, vector<string> {"A1", "B1", "C1"}));
+    unordered_map<string, unordered_set<int>> map4;
+    map4 = {{"age", {1000}}};
+    ds << v1 << "\n" << map1 << "\n" << p3 << "\n" << map4 << "\n";
+    expected_output =
+          "[\n"
+          "  [\n"
+          "    11, 22\n"
+          "  ], [\n"
+          "    44, 55\n"
+          "  ]\n"
+          "]\n"
+          "{\n"
+          "  age: [\n"
+          "    1300\n"
+          "  ],\n"
+          "  sage: [\n"
+          "    33, 55, 66\n"
+          "  ]\n"
+          "}\n"
+          "(\n"
+          "  121, (\n"
+          "    133, [\n"
+          "      A1, B1, C1\n"
+          "    ]\n"
+          "  )\n"
+          ")\n"
+          "{\n"
+          "  age: [\n"
+          "    1000\n"
+          "  ]\n"
+          "}\n";
+    EXPECT_EQ(ds.str(), expected_output);
+  }
+
+  {
+    struct S {
+      string s;
+      vector<S> children;
+      S(): s("Default") {}
+      S(const string& s): s(s) {}  // NOLINT
+      S(const string& s, vector<S>&& children): s(s),
+                                                children(std::move(children)) {}
+      void DebugStream(qk::DebugStream& ds) const {  // NOLINT
+        ds << "name = " << s << "\nchildren = " << children;
+      }
+    };
+    {
+      quick::DebugStream ds;
+      S s1 = {"Root"};
+      ds << s1;
+      expected_output =
+          "{\n"
+          "  name = Root\n"
+          "  children = []\n"
+          "}";
+      EXPECT_EQ(expected_output, ds.str());
+    }
+    {
+      quick::DebugStream ds;
+      S s2 = {"Root", {S {"R.1"}, S {"R.2"}, S {"R.3"}, S {"R.4"}}};
+      ds << s2;
+      expected_output =
+            "{\n"
+            "  name = Root\n"
+            "  children = [\n"
+            "    {\n"
+            "      name = R.1\n"
+            "      children = []\n"
+            "    }, {\n"
+            "      name = R.2\n"
+            "      children = []\n"
+            "    }, {\n"
+            "      name = R.3\n"
+            "      children = []\n"
+            "    }, {\n"
+            "      name = R.4\n"
+            "      children = []\n"
+            "    }\n"
+            "  ]\n"
+            "}";
+      EXPECT_EQ(expected_output, ds.str());
+    }
+    {
+      quick::DebugStream ds;
+      S s3 = {"Root", {S {"R.1"},
+                       S {"R.2",
+                          {S {"R.2.1",
+                              {S {"R.2.1.1"}}
+                             },
+                           S {"R.2.2"},
+                           S {"R.2.3",
+                              {S {"R.2.3.1"}}}}}}};
+      ds << s3;
+      expected_output =
+          "{\n"
+          "  name = Root\n"
+          "  children = [\n"
+          "    {\n"
+          "      name = R.1\n"
+          "      children = []\n"
+          "    }, {\n"
+          "      name = R.2\n"
+          "      children = [\n"
+          "        {\n"
+          "          name = R.2.1\n"
+          "          children = [\n"
+          "            {\n"
+          "              name = R.2.1.1\n"
+          "              children = []\n"
+          "            }\n"
+          "          ]\n"
+          "        }, {\n"
+          "          name = R.2.2\n"
+          "          children = []\n"
+          "        }, {\n"
+          "          name = R.2.3\n"
+          "          children = [\n"
+          "            {\n"
+          "              name = R.2.3.1\n"
+          "              children = []\n"
+          "            }\n"
+          "          ]\n"
+          "        }\n"
+          "      ]\n"
+          "    }\n"
+          "  ]\n"
+          "}";
+      EXPECT_EQ(expected_output, ds.str());
+    }
+  }
+  {
+    quick::DebugStream ds;
+    std::list<pair<int, int>> p2 = {{11, 22}, {44, 55}, {44, 55}};
+    std::list<pair<int, int>> p4 = {};
+    quick::unordered_map<pair<int, string>, int> m1, m2;
+    m1 = {{make_pair(500, "name"), 11}};
+    ds << p2 << "\n" << p4 << "\n" << m1 << "\n" << m2;
+    expected_output =
+      "[\n"
+      "  (\n"
+      "    11, 22\n"
+      "  ), (\n"
+      "    44, 55\n"
+      "  ), (\n"
+      "    44, 55\n"
+      "  )\n"
+      "]\n"
+      "[]\n"
+      "{\n"
+      "  (500, name): 11\n"
+      "}\n"
+      "{}";
+    EXPECT_EQ(expected_output, ds.str());
+  }
 }
-
-// TEST(OstreamExtensionTest, Basic) {
-//   std::ostringstream oss;
-//   vector<vector<int>> v1 = {{11, 22}, {44, 55}};
-//   map<string, set<int>> map1 = {{"age", {1300}}};
-//   pair<int, pair<int, vector<string>>> p3;
-//   p3 = make_pair(121, make_pair(133, vector<string> {"A1", "B1", "C1"}));
-//   unordered_map<string, unordered_set<int>> map4;
-//   map4 = {{"age", {1000}}};
-//   oss << v1 << "\n" << map1 << "\n" << p3 << "\n" << map4 << "\n";
-//   string expected_output = "[[11, 22], [44, 55]]\n"
-//                            "{age: [1300]}\n"
-//                            "(121, (133, [A1, B1, C1]))\n"
-//                            "{age: [1000]}\n";
-//   EXPECT_EQ(oss.str(), expected_output);
-//   struct S {
-//     string s;
-//     S(): s("My Value") {}
-//     string DebugString() const {return s; }
-//   };
-//   pair<int, vector<S>> p5;
-//   p5.first = 100;
-//   p5.second.resize(3);
-//   oss.str("");
-//   oss << p5;
-//   EXPECT_EQ(oss.str(), "(100, [My Value, My Value, My Value])");
-//   auto p = std::make_tuple(11, 22, false, vector<int>{10, 20, 30});
-//   EXPECT_EQ(qk::ToString(p), "(11, 22, 0, [10, 20, 30])");
-//   std::list<pair<int, int>> p2 = {{11, 22}, {44, 55}, {44, 55}};
-//   std::list<pair<int, int>> p4 = {};
-//   EXPECT_EQ(qk::ToString(p2), "[(11, 22), (44, 55), (44, 55)]");
-//   EXPECT_EQ(qk::ToString(p4), "[]");
-// }
-
-
-// TEST(ToString, Basic) {
-//   pair<int, pair<int, int>> p(110, {10, 44});
-//   EXPECT_EQ(qk::ToString(p), "(110, (10, 44))");
-// }
-
-
 
