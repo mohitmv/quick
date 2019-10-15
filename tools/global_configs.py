@@ -61,7 +61,14 @@ configs.dependency_configs = [
                 hdrs = ["include/quick/byte_stream.hpp"],
                 deps = []),
 
+  br.CppLibrary("src/debug_stream",
+                hdrs = ["include/quick/debug_stream.hpp"],
+                deps = []),
 
+
+  br.CppTest("tests/debug_stream_test",
+                srcs = ["tests/debug_stream_test.cpp"],
+                deps = ["src/debug_stream"]),
 
   br.CppTest("tests/byte_stream_test",
              srcs = ["tests/byte_stream_test.cpp"],
