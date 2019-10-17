@@ -34,6 +34,19 @@ using std::endl;
 // a = """<output>"""
 // print("\n".join('"'+i+"\\n"+'"' for i in a.split("\n")))
 
+TEST(DebugStreamTest, Fundamental) {
+  using quick::DebugStream;
+  DebugStream ds;
+  uint32_t a = 1;
+  int8_t b = 43;
+  int x = 4;
+  int16_t y = -45;
+  uint8_t q = 12;
+  ds << a << ", " << b << ", " << x << ", " << y << ", " << q;
+  EXPECT_EQ(ds.str(), "1, 43, 4, -45, 12");
+}
+
+
 TEST(DebugStreamTest, Basic) {
   using quick::DebugStream;
   string expected_output;
@@ -276,6 +289,20 @@ TEST(DebugStreamTest, Basic) {
     EXPECT_EQ(expected_output, ds.str());
   }
 }
+
+
+TEST(DebugStreamTest, Branch) {
+  quick::DebugStream ds;
+  ds << "mohit" << "{" << 33 << "\n\n" << "saini" << "}" << "\n";
+  string expected_output =
+      "mohit{\n"
+      "  33\n"
+      "  \n"
+      "  saini\n"
+      "}\n";
+  EXPECT_EQ(ds.str(), expected_output);
+}
+
 
 
 TEST(DebugStreamTest, ConstructorAndConsume) {

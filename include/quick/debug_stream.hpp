@@ -13,6 +13,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <sstream>
+#include <fstream>
 #include <string>
 
 #include <quick/type_traits.hpp>
@@ -57,6 +58,16 @@ class DebugStream {
     if (c == '\n') {
       TabSpace();
     }
+    return *this;
+  }
+
+  DebugStream& operator<<(uint8_t c) {
+    oss << static_cast<uint16_t>(c);
+    return *this;
+  }
+
+  DebugStream& operator<<(int8_t c) {
+    oss << static_cast<int16_t>(c);
     return *this;
   }
 
