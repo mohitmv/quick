@@ -24,17 +24,16 @@
 namespace quick {
 
 // Not Thread Safe
-class DebugStream {
+class DebugStream: public std::ostringstream {
  private:
   using string = std::string;
   using ostringstream = std::ostringstream;
 
  public:
-  std::ostringstream oss;
   DebugStream() {}
   DebugStream(const DebugStream&) = default;
   template<typename T>
-  explicit DebugStream(const T& input) {
+  DebugStream(const T& input) {
     (*this) << input;
   }
   template<typename T>
@@ -47,35 +46,15 @@ class DebugStream {
   uint8_t indentation_space = 2;
   uint32_t depth = 0;
 
-  inline DebugStream& TabSpace() {
-    oss << string(depth*indentation_space, ' ');
-    return *this;
+  inline void TabSpace() {
+    std::operator<<(static_cast<BaseStream&>(*this),
+                    string(depth*indentation_space, ' '));
   }
 
-  DebugStream& PrintChar(char c) {
-    oss << c;
+  inline DebugStream& operator<<(char c) {
+    std::operator<<((static_cast<BaseStream&>(*this)), c);
     if (c == '\n') {
       TabSpace();
-    }
-    return *this;
-  }
-
-  DebugStream& operator<<(char c) {
-    switch (c) {
-      case '{':
-      case '[':
-      case '(':
-        return BranchStart(c);
-      case '}':
-      case ']':
-      case ')':
-        return BranchEnd(c);
-      case '\n':
-        oss << c;
-        return TabSpace();
-      default:
-        oss << c;
-        break;
     }
     return *this;
   }
@@ -83,84 +62,43 @@ class DebugStream {
   template<typename T>
   std::enable_if_t<(std::is_fundamental<T>::value), DebugStream>&
   operator<<(const T& input) {
-    oss << input;
+    BaseStream::operator<<(input);
     return *this;
   }
 
   DebugStream& operator<<(const char* input) {
-    char c = input[0];
-    if (c == 0) {
-      return *this;
-    }
-    if (input[1] == 0) {
-      switch (c) {
-        case '{':
-        case '[':
-        case '(':
-          return BranchStart(c);
-        case '}':
-        case ']':
-        case ')':
-          return BranchEnd(c);
-        default: break;
-      }
-    }
-    for (auto i = input; *i; i++) {
-      PrintChar(*i);
+    for (auto i = input; *i ; i++) {
+      (*this) << (*i);
     }
     return *this;
-  }
-
-  std::string str() const {
-    return oss.str();
   }
 
   DebugStream& operator<<(const std::string& input) {
     for (auto c : input) {
-      PrintChar(c);
+      (*this) << c;
     }
     return *this;
   }
 
-  template<typename T>
-  inline DebugStream& BranchStartInternal(const T& input) {
-    oss << input;
+  inline void BranchStart(char c) {
+    (*this) << c;
     if (not is_inline) {
-      oss << "\n";
+      std::operator<<(static_cast<BaseStream&>(*this), "\n");
       depth++;
       TabSpace();
     }
-    return *this;
   }
 
-  template<typename T>
-  inline DebugStream& BranchEndInternal(const T& input) {
+  inline void BranchEnd(char c) {
     if (not is_inline) {
-      oss << "\n";
+      std::operator<<(static_cast<BaseStream&>(*this), "\n");
       if (depth == 0) {
         throw std::runtime_error("[quick::DebugStream]: Invalid BranchEnd");
       }
       depth--;
       TabSpace();
     }
-    oss << input;
-    return *this;
-  }
-
-  inline DebugStream& BranchStart(const string& s) {
-    return BranchStartInternal(s);
-  }
-
-  inline DebugStream& BranchStart(const char& s) {
-    return BranchStartInternal(s);
-  }
-
-  inline DebugStream& BranchEnd(const string& s) {
-    return BranchEndInternal(s);
-  }
-
-  inline DebugStream& BranchEnd(const char& s) {
-    return BranchEndInternal(s);
+    (*this) << c;
   }
 
   template<typename ValueType>
@@ -181,16 +119,16 @@ class DebugStream {
     }
   };
 
-  using SetInlineForThisScope = ScopedControlsStruct<bool>;
-  using SetIndentationForThisScope = ScopedControlsStruct<uint8_t>;
+  using ScopedInlineStruct = ScopedControlsStruct<bool>;
+  using ScopedIndentationStruct = ScopedControlsStruct<uint8_t>;
 
-  // inline ScopedInlineStruct SetInlineForThisScope(bool value) {
-  //   return ScopedInlineStruct(value, &this->is_inline);
-  // }
+  inline ScopedInlineStruct SetInlineForThisScope(bool value) {
+    return ScopedInlineStruct(value, &this->is_inline);
+  }
 
-  // inline ScopedIndentationStruct SetIndentationForThisScope(uint8_t value) {
-  //   return ScopedIndentationStruct(value, &this->indentation_space);
-  // }
+  inline ScopedIndentationStruct SetIndentationForThisScope(uint8_t value) {
+    return ScopedIndentationStruct(value, &this->indentation_space);
+  }
 
   DebugStream& SetInline(bool value) {
     this->is_inline = value;
@@ -224,17 +162,17 @@ operator<<(DebugStream& ds, const T& input) {
   if (input.size() == 0) {
     ds << "[]";
   } else {
-    ds << '[';
+    ds.BranchStart('[');
     bool is_first_item = true;
     for (const auto& item : input) {
-      ds.oss << (is_first_item ? "" : ", ");
-      ds << item;
+      ds << (is_first_item ? "" : ", ") << item;
       is_first_item = false;
     }
-    ds << ']';
+    ds.BranchEnd(']');
   }
   return ds;
 }
+
 
 template<typename T>
 std::enable_if_t<(quick::is_specialization<T, std::map>::value ||
@@ -244,33 +182,35 @@ operator<<(DebugStream& ds, const T& input) {
   if (input.size() == 0) {
     ds << "{}";
   } else {
-    ds << '{';
+    ds.BranchStart('{');
     bool is_first_item = true;
     for (const auto& item : input) {
       if (not is_first_item) {
-        ds.oss << ",";
+        ds << ",";
         if (not ds.is_inline) {
           ds << "\n";
         }
       }
       {
-        auto is_inline_prv_value = ds.is_inline;
+        // ds.SetInlineForThisScope(true);
         ds.is_inline = true;
         ds << item.first;
-        ds.is_inline = is_inline_prv_value;
+        ds.is_inline = false;
       }
-      ds.oss << ": ";
+      ds << ": ";
       ds << item.second;
       is_first_item = false;
     }
-    ds << '}';
+    ds.BranchEnd('}');
   }
   return ds;
 }
 
 template<typename T1, typename T2>
 DebugStream& operator<<(DebugStream& ds, const std::pair<T1, T2>& input) {
-  ds << "(" << input.first << ", " << input.second << ")";
+  ds.BranchStart('(');
+  ds << input.first << ", " << input.second;
+  ds.BranchEnd(')');
   return ds;
 }
 
@@ -282,9 +222,9 @@ std::enable_if_t<
                    std::declval<quick::DebugStream&>()))>::value,
   DebugStream>&
 operator<<(DebugStream& ds, const T& input) {
-  ds << "{";
+  ds.BranchStart('{');
   input.DebugStream(ds);
-  ds << "}";
+  ds.BranchEnd('}');
   return ds;
 }
 

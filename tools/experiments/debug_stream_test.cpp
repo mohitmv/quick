@@ -37,20 +37,23 @@ using std::endl;
 TEST(DebugStreamTest, Basic) {
   using quick::DebugStream;
   string expected_output;
+
   {
     quick::DebugStream ds;
     enum {UU, PP};
     ds.BranchStart('[');
     ds << make_pair(44, 55) << "\n\n";
     {
+      ds.SetInlineForThisScope(true);
       ds << "mohit" << make_pair(44, 55);
       ds << "saini\n\n";
       {
+        ds.SetIndentationForThisScope(4);
         ds << "mohit\nsaini\nand mohit\nsaini\n";
         ds << UU << ", " << PP;
-      }
+      }  // IndentationSpace restored.
       ds << "\n\nsaini\n\n";
-    }
+    }  // is_inline restored
     ds.BranchEnd(']');
     ds << "\n\n" << make_pair(44, 55);
     expected_output =
