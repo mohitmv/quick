@@ -26,7 +26,7 @@ TEST(ContainsKey, Basic) {
 TEST(STLGetKeys, Basic) {
   unordered_map<int, int> m = {{10, 100}, {20, 200}};
   EXPECT_EQ(qk::STLGetKeys(m), (std::unordered_set<int>{10, 20}));
-  EXPECT_EQ(qk::STLGetKeys(std::unordered_map<int, int>{}).size(), 0);
+  EXPECT_EQ(qk::STLGetKeys(std::unordered_map<int, int>{}).size(), 0UL);
   std::set<int> results;
   qk::STLGetKeys(m, &results);
   EXPECT_EQ(results, (std::set<int> {10, 20}));
@@ -36,7 +36,7 @@ TEST(InsertToVector, Basic) {
   std::vector<int> a = {5, 66};
   std::vector<int> b = {76, 3, 66};
   qk::InsertToVector(b, &a);
-  EXPECT_EQ(a.size(), 5);
+  EXPECT_EQ(a.size(), 5UL);
   EXPECT_EQ(a, (vector<int> {5, 66, 76, 3, 66}));
   std::unordered_set<int> c = {11, 22};
   qk::InsertToVector(c, &a);
@@ -49,7 +49,7 @@ TEST(InsertToVectorMoving, Basic) {
   std::vector<int> a = {5, 66};
   std::vector<int> b = {76, 3, 66};
   qk::InsertToVectorMoving(b, &a);
-  EXPECT_EQ(a.size(), 5);
+  EXPECT_EQ(a.size(), 5UL);
   struct A {
     int data;
     A(int data): data(data) {}  // NOLINT
@@ -66,7 +66,7 @@ TEST(InsertToVectorMoving, Basic) {
   bb.emplace_back(114);
   bb.emplace_back(115);
   qk::InsertToVectorMoving(bb, &aa);
-  EXPECT_EQ(aa.size(), 5);
+  EXPECT_EQ(aa.size(), 5UL);
   EXPECT_EQ(aa[4].data, 115);
 }
 
@@ -79,7 +79,7 @@ TEST(SetUnion, Basic) {
   auto union_set = qk::SetUnion(a, b);
   EXPECT_EQ(a, a2);
   EXPECT_EQ(b, b2);
-  EXPECT_EQ(union_set.size(), 8);
+  EXPECT_EQ(union_set.size(), 8UL);
   EXPECT_TRUE(qk::ContainsKey(union_set, 55));
   EXPECT_TRUE(qk::ContainsKey(union_set, 13));
   EXPECT_EQ(qk::SetUnion(std::set<int> {10, 20},

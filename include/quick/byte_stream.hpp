@@ -30,6 +30,7 @@ static const bool is_little_endian_system = IsLittleEndianSystem();
 }
 
 
+// Can Store at max 4G data.
 class ByteStream {
   struct Error {
     enum Type {INVALID_READ};
@@ -37,7 +38,7 @@ class ByteStream {
   };
   static constexpr bool little_endian_storage = true;
   std::string str_value;
-  int read_ptr = 0;
+  uint32_t read_ptr = 0;
 
  public:
   const std::string& str() const {
@@ -54,13 +55,13 @@ class ByteStream {
   std::enable_if_t<(std::is_fundamental<T>::value ||
                     std::is_enum<T>::value), ByteStream>&
   operator<<(const T& input) {
-    int len = str_value.size();
+    uint32_t len = str_value.size();
     str_value.resize(len + sizeof(T));
     const auto* input_ptr = reinterpret_cast<const uint8_t*>(&input);
     if (little_endian_storage == detail::is_little_endian_system) {
       std::memcpy(&str_value[len], input_ptr, sizeof(T));
     } else {
-      for (int i = 0; i < sizeof(T); i++) {
+      for (uint32_t i = 0; i < sizeof(T); i++) {
         str_value[len + i] = input_ptr[sizeof(T) -i - 1];
       }
     }
@@ -71,7 +72,7 @@ class ByteStream {
   std::enable_if_t<(std::is_fundamental<T>::value ||
                     std::is_enum<T>::value), ByteStream>&
   operator>>(T& output) {
-    int len = str_value.size();
+    uint32_t len = str_value.size();
     if (read_ptr + sizeof(T) > len) {
       throw Error {Error::INVALID_READ};
     }
@@ -79,7 +80,7 @@ class ByteStream {
     if (little_endian_storage == detail::is_little_endian_system) {
       std::memcpy(output_ptr, &str_value[read_ptr], sizeof(T));
     } else {
-      for (int i = 0; i < sizeof(T); i++) {
+      for (uint32_t i = 0; i < sizeof(T); i++) {
         output_ptr[sizeof(T) -i - 1] = str_value[read_ptr + i];
       }
     }
@@ -239,7 +240,7 @@ ByteStream& operator>>(ByteStream& bs, std::unordered_map<K, Ts...>& output) {
   output.clear();
   output.reserve(container_size);
   K k;
-  for (int i = 0; i < container_size; i++) {
+  for (uint32_t i = 0; i < container_size; i++) {
     bs >> k;
     bs >> output[k];
   }
@@ -252,7 +253,7 @@ ByteStream& operator>>(ByteStream& bs, std::map<K, Ts...>& output) {
   bs >> container_size;
   output.clear();
   K k;
-  for (int i = 0; i < container_size; i++) {
+  for (uint32_t i = 0; i < container_size; i++) {
     bs >> k;
     bs >> output[k];
   }
@@ -264,7 +265,7 @@ ByteStream& operator>>(ByteStream& bs, std::vector<T>& output) {
   uint64_t vector_size;
   bs >> vector_size;
   output.resize(vector_size);
-  for (int i = 0; i < vector_size; i++) {
+  for (uint32_t i = 0; i < vector_size; i++) {
     bs >> output[i];
   }
   return bs;
@@ -278,7 +279,7 @@ operator>>(ByteStream& bs, T& output) {
   bs >> container_size;
   output.clear();
   output.reserve(container_size);
-  for (int i = 0; i < container_size; i++) {
+  for (uint32_t i = 0; i < container_size; i++) {
     typename T::value_type v;
     bs >> v;
     output.insert(std::move(v));
@@ -294,7 +295,7 @@ operator>>(ByteStream& bs, T& output) {
   uint64_t container_size;
   bs >> container_size;
   output.clear();
-  for (int i = 0; i < container_size; i++) {
+  for (uint32_t i = 0; i < container_size; i++) {
     typename T::value_type v;
     bs >> v;
     output.insert(std::move(v));
