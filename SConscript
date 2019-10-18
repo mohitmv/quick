@@ -7,6 +7,7 @@ try:
 except ImportError as e:
   from tools.global_configs import configs
 
+configs.compiler_options.mode = env["mode"];
 configs = tools.helpers.PreProcessDependencyConfigs(configs);
 
 new_build_targets = tools.infra_lib.SconsUtility(env, configs).DeclareToSCons(BUILD_TARGETS);
