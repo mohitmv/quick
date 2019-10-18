@@ -24,4 +24,4 @@ def RunAllTests(configs, pp = 20, tests = None):
     tests = list(i["name"] for i in configs.dependency_configs if i["type"] == "CppTest")
   infra_lib.RunLinuxCommand("scons -j"+str(pp) + " " + " ".join(tests));
   for i in tests:
-    infra_lib.RunLinuxCommand("./build-dbg/" + i);
+    infra_lib.RunLinuxCommand("./" + configs.build_dir + "/" + i);

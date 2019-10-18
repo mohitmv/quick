@@ -5,10 +5,8 @@ configs.compiler_options = infra_lib.Object(mode = "opt");
 configs.package = "quick-1.0.0"
 configs.prod_cc_flags = " ".join([" -Wno-unused-function ",
                                   " -Wno-unused-parameter ",
-                                  " -Wno-unused-local-typedefs ",
-                                  " -Werror ", " -Wpedantic ", " -Wextra "]);
+                                  " -Wno-unused-local-typedefs "]);
 configs.global_include_dir = ["include"];
-configs.active_remote_branch = "master";
 configs.active_remote_branch = "dev-quick-1.1";
 toolchain_path = configs.toolchain_path = os.path.join(os.environ["HOME"], "toolchain");
 
@@ -111,10 +109,12 @@ configs.dependency_configs = [
 ];
 
 
-configs["CCFLAGS"] = "--std=c++14 -Wall -Wextra -Wno-sign-compare -fno-omit-frame-pointer -Wnon-virtual-dtor -mpopcnt -msse4.2 -g3 -Woverloaded-virtual -Wno-char-subscripts -Werror=deprecated-declarations -Wa,--compress-debug-sections -fdiagnostics-color=always ";
-if (configs.compiler_options["mode"] == "dbg"):
+configs["CCFLAGS"] = "--std=c++14 -Wall -Wextra -Wno-sign-compare -fno-omit-frame-pointer -Wnon-virtual-dtor -mpopcnt -msse4.2 -g3 -Woverloaded-virtual -Wno-char-subscripts -Werror=deprecated-declarations -Wa,--compress-debug-sections -fdiagnostics-color=always  -Werror  -Wpedantic  -Wextra ";
+if (configs.compiler_options["mode"] == "debug"):
   configs["CCFLAGS"] += " -O0 ";
 elif (configs.compiler_options["mode"] == "opt"):
+  configs["CCFLAGS"] += " -O3 " + configs.prod_cc_flags ;
+elif (configs.compiler_options["mode"] == "release"):
   configs["CCFLAGS"] += " -O3 " + configs.prod_cc_flags ;
 
 configs["LINKFLAGS"] = ""

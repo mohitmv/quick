@@ -184,5 +184,5 @@ class SconsUtility:
         print(module);
         assert False;
       declared_targets[module_name] = declaration;
-    return list(("build-dbg/" + i) for i in build_targets);
+    return list((env["build_dir"] + "/" + i) for i in build_targets);
 

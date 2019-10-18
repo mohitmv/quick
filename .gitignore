@@ -1,4 +1,7 @@
 build-dbg/
+build-debug/
+build-opt/
+build-release/
 .sconsign.dblite
 __pycache__
 *.pyc
