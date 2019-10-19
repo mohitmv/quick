@@ -37,10 +37,11 @@ def main():
   if len(sys.argv) == 1:
     return help_message;
   command = sys.argv[1]
-  opts, args = getopt.getopt(sys.argv[2:], "", ["arg1=", "mode", "=package", "=from"])
+  opts, args = getopt.getopt(sys.argv[2:], "", ["arg1=", "mode=", "=package", "=from"])
   opts = dict(opts);
-  if ("mode" in opts):
-    configs.compiler_options.mode = opts["mode"];
+  print(opts, args);
+  if ("--mode" in opts):
+    configs.compiler_options.mode = opts["--mode"];
   configs.build_dir = "build-" + configs.compiler_options.mode;
   if command in ["-h", "--help"]:
     return help_message;
