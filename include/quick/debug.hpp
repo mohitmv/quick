@@ -46,6 +46,8 @@
 #include <tuple>
 #include <list>
 
+#include <quick/debug_stream.hpp>
+
 namespace quick {
 namespace detail {
 
@@ -119,12 +121,36 @@ std::string ToString(const T& input) {
 namespace std {
 
 template<typename T>
-quick::detail::FirstType<ostream, decltype(&T::DebugString)>& operator<<(
-    ostream& os,
-    const T& input) {
+std::enable_if_t<
+  std::is_same<std::string,
+               decltype(
+                 std::declval<const T&>().DebugString())>::value,
+  ostream>& operator<<(ostream& os, const T& input) {
   os << input.DebugString();
   return os;
 }
+
+template<typename T>
+std::enable_if_t<
+  std::is_same<void,
+               decltype(
+                 std::declval<const T&>().DebugStream(
+                   std::declval<quick::DebugStream&>())
+               )>::value,
+  ostream>& operator<<(ostream& os, const T& input) {
+  os << quick::DebugStream(input).str();
+  return os;
+}
+
+
+// template<typename T>
+// quick::detail::FirstType<ostream, decltype(&T::DebugString)>& operator<<(
+//     ostream& os,
+//     const T& input) {
+//   os << input.DebugString();
+//   return os;
+// }
+
 
 // Prints a std::pair
 template<typename T1, typename T2>

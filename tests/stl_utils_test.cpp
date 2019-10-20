@@ -128,3 +128,11 @@ TEST(ToUnorderedSet, Basic) {
 
 
 
+TEST(InvertMapTest, Basic) {
+  unordered_map<int, int> a = {{11, 22}, {33, 44}};
+  std::unordered_map<int, int> b;
+  qk::InvertMap(a, &b);
+  EXPECT_EQ(b, (std::unordered_map<int, int>{{22, 11}, {44, 33}}));
+}
+
+

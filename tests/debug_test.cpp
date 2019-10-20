@@ -3,6 +3,7 @@
 
 #include "quick/debug.hpp"
 
+#include <iostream>
 #include <map>
 #include <utility>
 #include <vector>
@@ -19,6 +20,8 @@ using std::string;
 using std::unordered_set;
 using std::unordered_map;
 using std::vector;
+using std::cout;
+using std::endl;
 
 TEST(OstreamExtensionTest, Basic) {
   std::ostringstream oss;
@@ -53,6 +56,57 @@ TEST(OstreamExtensionTest, Basic) {
   EXPECT_EQ(qk::ToString(p4), "[]");
 }
 
+
+TEST(OstreamExtensionTest, DebugStream) {
+  struct S {
+    string s = "Default Value";
+    vector<S> children;
+    S() {}
+    S(const string& s): s(s) {}
+    void DebugStream(quick::DebugStream& ds) const {
+      ds << "s = " << s << "\n"
+         << "children = " << children;
+    }
+  };
+  pair<string, vector<S>> p5;
+  p5.first = "A";
+  p5.second.resize(3);
+  p5.second.emplace_back(S("11"));
+  p5.second.emplace_back(S("12"));
+  p5.second.back().children.emplace_back(S("11.11"));
+  p5.second.back().children.emplace_back(S("11.12"));
+  std::ostringstream oss;
+  oss << p5;
+  // Use this python code to generate this C++ string to expect.
+  // a = """<output>"""
+  // print("\n".join('"'+i+"\\n"+'"' for i in a.split("\n")))
+  string expected_output =
+    "(A, [{\n"
+    "  s = Default Value\n"
+    "  children = []\n"
+    "}, {\n"
+    "  s = Default Value\n"
+    "  children = []\n"
+    "}, {\n"
+    "  s = Default Value\n"
+    "  children = []\n"
+    "}, {\n"
+    "  s = 11\n"
+    "  children = []\n"
+    "}, {\n"
+    "  s = 12\n"
+    "  children = [\n"
+    "    {\n"
+    "      s = 11.11\n"
+    "      children = []\n"
+    "    }, {\n"
+    "      s = 11.12\n"
+    "      children = []\n"
+    "    }\n"
+    "  ]\n"
+    "}])";
+  EXPECT_EQ(expected_output, oss.str());
+}
 
 TEST(ToString, Basic) {
   pair<int, pair<int, int>> p(110, {10, 44});

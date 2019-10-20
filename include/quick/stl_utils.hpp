@@ -13,10 +13,7 @@
 #include <sstream>
 
 namespace quick {
-namespace detail {
 
-
-}
 
 template<typename T, typename... Ts>
 std::vector<T> ArgsToVector(T arg, Ts... args) {
@@ -156,6 +153,13 @@ auto ToUnorderedSet(
   return output;
 }
 
+template<typename IMap, typename OMap>
+void InvertMap(const IMap& imap, OMap* output) {
+  for (auto& item: imap) {
+    output->emplace(std::make_pair(item.second, item.first));
+  }
+}
+
 template<typename T>
 std::string StringJoin(const T& container, const std::string& join_by = " ") {
   std::ostringstream oss;
@@ -172,6 +176,7 @@ std::string StringJoin(const T& container, const std::string& join_by = " ") {
 }
 
 }  // namespace quick
+
 
 namespace qk = quick;
 
