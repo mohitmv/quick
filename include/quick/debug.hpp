@@ -104,8 +104,18 @@ void PrintTuple(std::ostream& os, const std::tuple<Ts...>& input) {
 }
 
 
-template<typename T, typename...> using FirstType = T;
 
+template<typename T>
+using HasDebugString = std::is_same<
+                          std::string,
+                          decltype(std::declval<const T&>().DebugString())>;
+
+template<typename T>
+using HasDebugStream = std::is_same<void,
+                                    decltype(
+                                      std::declval<const T&>().DebugStream(
+                                        std::declval<quick::DebugStream&>())
+                                    )>;
 
 }  // namespace detail
 
@@ -120,36 +130,23 @@ std::string ToString(const T& input) {
 
 namespace std {
 
+
 template<typename T>
-std::enable_if_t<
-  std::is_same<std::string,
-               decltype(
-                 std::declval<const T&>().DebugString())>::value,
-  ostream>& operator<<(ostream& os, const T& input) {
+std::enable_if_t<(quick::detail::HasDebugString<T>::value &&
+                  not(quick::specialize_if_can<std::false_type,
+                                               quick::detail::HasDebugStream,
+                                               T>::value)), ostream>&
+operator<<(ostream& os, const T& input) {
   os << input.DebugString();
   return os;
 }
 
 template<typename T>
-std::enable_if_t<
-  std::is_same<void,
-               decltype(
-                 std::declval<const T&>().DebugStream(
-                   std::declval<quick::DebugStream&>())
-               )>::value,
-  ostream>& operator<<(ostream& os, const T& input) {
+std::enable_if_t<quick::detail::HasDebugStream<T>::value, ostream>&
+operator<<(ostream& os, const T& input) {
   os << quick::DebugStream(input).str();
   return os;
 }
-
-
-// template<typename T>
-// quick::detail::FirstType<ostream, decltype(&T::DebugString)>& operator<<(
-//     ostream& os,
-//     const T& input) {
-//   os << input.DebugString();
-//   return os;
-// }
 
 
 // Prints a std::pair

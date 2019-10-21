@@ -58,54 +58,73 @@ TEST(OstreamExtensionTest, Basic) {
 
 
 TEST(OstreamExtensionTest, DebugStream) {
-  struct S {
-    string s = "Default Value";
-    vector<S> children;
-    S() {}
-    S(const string& s): s(s) {}
-    void DebugStream(quick::DebugStream& ds) const {
-      ds << "s = " << s << "\n"
-         << "children = " << children;
-    }
-  };
-  pair<string, vector<S>> p5;
-  p5.first = "A";
-  p5.second.resize(3);
-  p5.second.emplace_back(S("11"));
-  p5.second.emplace_back(S("12"));
-  p5.second.back().children.emplace_back(S("11.11"));
-  p5.second.back().children.emplace_back(S("11.12"));
-  std::ostringstream oss;
-  oss << p5;
-  // Use this python code to generate this C++ string to expect.
-  // a = """<output>"""
-  // print("\n".join('"'+i+"\\n"+'"' for i in a.split("\n")))
-  string expected_output =
-    "(A, [{\n"
-    "  s = Default Value\n"
-    "  children = []\n"
-    "}, {\n"
-    "  s = Default Value\n"
-    "  children = []\n"
-    "}, {\n"
-    "  s = Default Value\n"
-    "  children = []\n"
-    "}, {\n"
-    "  s = 11\n"
-    "  children = []\n"
-    "}, {\n"
-    "  s = 12\n"
-    "  children = [\n"
-    "    {\n"
-    "      s = 11.11\n"
-    "      children = []\n"
-    "    }, {\n"
-    "      s = 11.12\n"
-    "      children = []\n"
-    "    }\n"
-    "  ]\n"
-    "}])";
-  EXPECT_EQ(expected_output, oss.str());
+  {
+    struct S {
+      string s = "Default Value";
+      vector<S> children;
+      S() {}
+      S(const string& s): s(s) {}
+      void DebugStream(quick::DebugStream& ds) const {
+        ds << "s = " << s << "\n"
+           << "children = " << children;
+      }
+    };
+    pair<string, vector<S>> p5;
+    p5.first = "A";
+    p5.second.resize(3);
+    p5.second.emplace_back(S("11"));
+    p5.second.emplace_back(S("12"));
+    p5.second.back().children.emplace_back(S("11.11"));
+    p5.second.back().children.emplace_back(S("11.12"));
+    std::ostringstream oss;
+    oss << p5;
+    // Use this python code to generate this C++ string to expect.
+    // a = """<output>"""
+    // print("\n".join('"'+i+"\\n"+'"' for i in a.split("\n")))
+    string expected_output =
+      "(A, [{\n"
+      "  s = Default Value\n"
+      "  children = []\n"
+      "}, {\n"
+      "  s = Default Value\n"
+      "  children = []\n"
+      "}, {\n"
+      "  s = Default Value\n"
+      "  children = []\n"
+      "}, {\n"
+      "  s = 11\n"
+      "  children = []\n"
+      "}, {\n"
+      "  s = 12\n"
+      "  children = [\n"
+      "    {\n"
+      "      s = 11.11\n"
+      "      children = []\n"
+      "    }, {\n"
+      "      s = 11.12\n"
+      "      children = []\n"
+      "    }\n"
+      "  ]\n"
+      "}])";
+    EXPECT_EQ(expected_output, oss.str());
+  }
+  {
+    struct S2 {
+      string s = "Default Value";
+      S2() {}
+      S2(const string& s): s(s) {}
+      std::string DebugString() const {
+        return "DebugString won't be used if DebugStream is available";
+      }
+      void DebugStream(quick::DebugStream& ds) const {
+        ds << "s = " << s;
+      }
+    };
+    S2 s2("s2 created");
+    std::ostringstream oss;
+    oss << s2;
+    EXPECT_EQ("{\n  s = s2 created\n}", oss.str());
+  }
 }
 
 TEST(ToString, Basic) {

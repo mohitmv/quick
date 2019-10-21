@@ -1,44 +1,39 @@
+// Example program
 #include <iostream>
+#include <string>
+#include <type_traits>
 
-#include <unordered_set>
-#include <utility>
-#include <memory>
-#include <functional>
 
-namespace quick {
+template<typename...> using void_t = void;
+
+template<template<class...> class Template, class AlwaysVoid, class... Args>
+struct test_specialization_impl: std::false_type {};
+
+template<template<class...> class Template, class... Args>
+struct test_specialization_impl<Template, void_t<Template<Args...>>, Args...>: std::true_type {};
+
+template<template<class...> class Template, class... Args>
+using test_specialization = test_specialization_impl<Template, void, Args...>;
+
+
+using namespace std;
 
 template<typename T>
-struct hash: std::hash<T> {};
+struct S: std::true_type {};
 
-template <class Key,
-          typename Hasher = quick::hash<Key>,
-          typename Pred = std::equal_to<Key>,
-          typename Alloc = std::allocator<Key>>
-using unordered_set = std::unordered_set<Key, Hasher, Pred, Alloc>;
+struct P1 {};
+struct P2 {
+    void Member();
+};
 
-}
+template<typename T>
+using S2 = std::is_same<void, decltype(&T::Member)>;
 
-
-namespace quick {
-
-template <typename ContainerType, class KeyType>
-bool ContainsKey28(const ContainerType& container, const KeyType& key) {
-  return container.find(key) != container.end();
-}
-
-}
-
-
-inline bool F2() {
-  bool a = ContainsKey28(quick::unordered_set<int>{3}, 3);
-  return a;
-}
-
-
-using std::cout;
-using std::endl;
 
 int main() {
-  cout << "All Good 4" << endl;
-  return 0;
+
+    cout << test_specialization<S, int>::value << endl;
+    cout << test_specialization<S2, P1>::value << endl;
+    cout << test_specialization<S2, P2>::value << endl;
+
 }
