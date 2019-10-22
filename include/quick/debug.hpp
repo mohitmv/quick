@@ -105,6 +105,12 @@ void PrintTuple(std::ostream& os, const std::tuple<Ts...>& input) {
 
 
 
+// In case of success: output type is an instance of std::true_type
+// In case of failure: Either fails while substituting or output type is an
+//                     instance of std::false_type
+// Need a wrapper to cover substitution failure ? use this =>
+// quick::specialize_if_can<std::false_type, HasDebugString, T>::value
+// It will fall back on `std::false_type` in the case of substitution failure.
 template<typename T>
 using HasDebugString = std::is_same<
                           std::string,

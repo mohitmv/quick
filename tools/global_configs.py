@@ -27,7 +27,8 @@ configs.dependency_configs = [
   br.CppProgram("tools/experiments/try",
                 ignore_cpplint = True,
                 srcs = ["tools/experiments/try.cpp"],
-                deps = []),
+                deps = [],
+                global_link_flags = "-lpthread"),
 
   br.CppProgram("tools/experiments/try2",
                 ignore_cpplint = True,
