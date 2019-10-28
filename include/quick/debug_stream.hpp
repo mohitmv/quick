@@ -32,7 +32,7 @@ class DebugStream {
 
  public:
   std::ostringstream oss;
-  DebugStream() {}
+  DebugStream() = default;
   DebugStream(const DebugStream&) = default;
   template<typename... Ts>
   explicit DebugStream(const Ts&... input) {
