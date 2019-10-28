@@ -34,19 +34,18 @@ class DebugStream {
   std::ostringstream oss;
   DebugStream() {}
   DebugStream(const DebugStream&) = default;
-  template<typename T>
-  explicit DebugStream(const T& input) {
-    (*this) << input;
+  template<typename... Ts>
+  explicit DebugStream(const Ts&... input) {
+    this->Consume(input...);
   }
-  template<typename T>
-  DebugStream& Consume(const T& input) {
-    (*this) << input;
-    return *this;
+
+  template<typename T, typename... Ts>
+  inline DebugStream& Consume(const T& head, const Ts&... tail) {
+    (*this) << head;
+    return Consume(tail...);
   }
-  using BaseStream = std::ostringstream;
-  bool is_inline = false;
-  uint8_t indentation_space = 2;
-  uint32_t depth = 0;
+
+  inline DebugStream& Consume() {return *this;}
 
   inline DebugStream& TabSpace() {
     oss << string(depth*indentation_space, ' ');
@@ -212,6 +211,9 @@ class DebugStream {
     this->indentation_space = value;
     return *this;
   }
+  bool is_inline = false;
+  uint8_t indentation_space = 2;
+  uint32_t depth = 0;
 };
 
 namespace detail {

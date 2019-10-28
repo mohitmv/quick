@@ -308,8 +308,8 @@ TEST(DebugStreamTest, Branch) {
 TEST(DebugStreamTest, ConstructorAndConsume) {
   int x = 100;
   vector<int> v = {11, 22, 33};
-  EXPECT_EQ(quick::DebugStream(x).SetInline(true).Consume(v).str(),
-            "100[11, 22, 33]");
+  EXPECT_EQ(quick::DebugStream(x, x, x, x).SetInline(true).Consume(v).str(),
+            "100100100100[11, 22, 33]");
 }
 
 
