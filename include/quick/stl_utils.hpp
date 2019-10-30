@@ -79,17 +79,28 @@ void InsertToSet(const Container1& input, Container2* output) {
   output->insert(input.begin(), input.end());
 }
 
+template<typename Co>
+inline void InsertToSetVarArgs(Co* output) {}
+
+template<typename Co, typename CiHead, typename... CiTail>
+inline void InsertToSetVarArgs(Co* output,
+                               const CiHead& head,
+                               const CiTail&... tail) {
+  output->insert(head.begin(), head.end());
+  InsertToSetVarArgs(output, tail...);
+}
+
+
 template<typename Container1, typename Container2>
 void InsertToMap(const Container1& input, Container2* output) {
   output->insert(input.begin(), input.end());
 }
 
 
-template<typename Container1, typename Container2>
-Container1 SetUnion(const Container1& input1, const Container2& input2) {
+template<typename Container1, typename... Containers>
+Container1 SetUnion(const Container1& input1, const Containers&... inputs) {
   Container1 output;
-  InsertToSet(input1, &output);
-  InsertToSet(input2, &output);
+  InsertToSetVarArgs(&output, input1, inputs...);
   return output;
 }
 

@@ -85,6 +85,19 @@ TEST(SetUnion, Basic) {
   EXPECT_EQ(qk::SetUnion(std::set<int> {10, 20},
                          std::unordered_set<int> {20, 30}),
             (std::set<int> {10, 20, 30}));
+  EXPECT_EQ(qk::SetUnion(std::set<int> {10, 20}),
+            (std::set<int> {10, 20}));
+
+
+
+  EXPECT_EQ(qk::SetUnion(std::set<int> {10, 20},
+                         std::unordered_set<int> {20, 30},
+                         std::unordered_set<int> {120, 530},
+                         std::unordered_set<int> {320, 330}
+                         ),
+            (std::set<int> {10, 20, 30, 120, 530, 320, 330}));
+
+
 }
 
 
@@ -136,3 +149,9 @@ TEST(InvertMapTest, Basic) {
 }
 
 
+TEST(InsertToSet, Basic) {
+  unordered_set<int> x = {11, 12};
+  unordered_set<int> y = {13, 12};
+  unordered_set<int> z = {13, 12};
+  quick::InsertToSet(x, &y);
+}
