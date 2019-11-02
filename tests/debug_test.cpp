@@ -132,5 +132,3 @@ TEST(ToString, Basic) {
   EXPECT_EQ(qk::ToString(p), "(110, (10, 44))");
 }
 
-
-

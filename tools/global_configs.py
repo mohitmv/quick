@@ -88,6 +88,14 @@ configs.dependency_configs = [
              srcs = ["tests/debug_test.cpp"],
              deps = ["src/debug"]),
 
+  br.CppTest("tests/debug_test_c1",
+             srcs = ["tests/debug_test_c1.cpp"],
+             deps = ["src/debug"]),
+
+  br.CppTest("tests/debug_test_c2",
+             srcs = ["tests/debug_test_c2.cpp"],
+             deps = ["src/debug"]),
+
   br.CppTest("tests/alias_test",
              srcs = ["tests/alias_test.cpp"],
              deps = ["src/alias"]),

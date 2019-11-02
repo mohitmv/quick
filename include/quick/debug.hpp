@@ -123,6 +123,12 @@ using HasDebugStream = std::is_same<void,
                                         std::declval<quick::DebugStream&>())
                                     )>;
 
+template<typename T>
+using IsOstreamDefinedForPair = decltype(
+      std::operator<<(std::declval<std::ostream&>(), std::declval<const T&>()));
+
+
+
 }  // namespace detail
 
 template<typename T>
@@ -154,43 +160,33 @@ operator<<(ostream& os, const T& input) {
   return os;
 }
 
-
-// Prints a std::pair
-template<typename T1, typename T2>
-ostream& operator<<(ostream& os, const std::pair<T1, T2>& input) {
+template<typename T>
+std::enable_if_t<(quick::is_specialization<T, std::pair>::value &&
+  not quick::test_specialization<quick::detail::IsOstreamDefinedForPair, T>::value)
+, ostream>&
+operator<<(ostream& os, const T& input) {
   os << "(" << input.first << ", " << input.second << ")";
   return os;
 }
 
-template<typename... Ts>
-ostream& operator<<(ostream& os, const std::vector<Ts...>& input) {
+
+template<typename T>
+std::enable_if_t<(quick::is_specialization<T, std::vector>::value ||
+                  quick::is_specialization<T, std::list>::value ||
+                  quick::is_specialization<T, std::unordered_set>::value ||
+                  quick::is_specialization<T, std::set>::value), ostream>&
+operator<<(ostream& os, const T& input) {
   return quick::detail::PrintContainer(os, input);
 }
 
-template<typename... Ts>
-ostream& operator<<(ostream& os, const std::list<Ts...>& input) {
-  return quick::detail::PrintContainer(os, input);
-}
-
-template<typename... Ts>
-ostream& operator<<(ostream& os, const std::unordered_set<Ts...>& input) {
-  return quick::detail::PrintContainer(os, input);
-}
-
-template<typename... Ts>
-ostream& operator<<(ostream& os, const std::set<Ts...>& input) {
-  return quick::detail::PrintContainer(os, input);
-}
-
-template<typename... Ts>
-ostream& operator<<(ostream& os, const std::map<Ts...>& input) {
+template<typename T>
+std::enable_if_t<(quick::is_specialization<T, std::map>::value ||
+                  quick::is_specialization<T, std::unordered_map>::value),
+                 ostream>&
+operator<<(ostream& os, const T& input) {
   return quick::detail::PrintMap(os, input);
 }
 
-template<typename... Ts>
-ostream& operator<<(ostream& os, const std::unordered_map<Ts...>& input) {
-  return quick::detail::PrintMap(os, input);
-}
 
 template<typename... Ts>
 ostream& operator<<(ostream& os, const std::tuple<Ts...>& input) {
