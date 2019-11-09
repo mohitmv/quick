@@ -204,9 +204,21 @@ inline std::size_t HashF(const T& input) {
   return quick::hash<T>()(input);
 }
 
+inline std::size_t HashFunction() {
+  return 0;
+}
+
 template<typename T>
 inline std::size_t HashFunction(const T& input) {
   return quick::hash<T>()(input);
+}
+
+template<typename T1, typename T2, typename... Ts>
+inline std::size_t HashFunction(const T1& i1, const T2& i2, const Ts&... is) {
+  std::vector<std::size_t> v = {quick::HashFunction(i1),
+                                quick::HashFunction(i2),
+                                quick::HashFunction(is)...};
+  return quick::HashFunction(v);
 }
 
 

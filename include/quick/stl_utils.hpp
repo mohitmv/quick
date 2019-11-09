@@ -25,6 +25,18 @@ bool ContainsKey(const ContainerType& container, const KeyType& key) {
   return container.find(key) != container.end();
 }
 
+template <typename ContainerType, class KeyType, class Fallback>
+Fallback Get(const ContainerType& container,
+             const KeyType& key,
+             const Fallback& fb) {
+  const auto& val = container.find(key);
+  if (val == container.end()) {
+    return fb;
+  } else {
+    return val->second;
+  }
+}
+
 template<typename MapContainer, typename OutputContainer>
 void STLGetKeys(const MapContainer& input, OutputContainer* output) {
   for (auto& item : input) {
@@ -185,6 +197,8 @@ std::string StringJoin(const T& container, const std::string& join_by = " ") {
   }
   return oss.str();
 }
+
+
 
 }  // namespace quick
 

@@ -120,3 +120,13 @@ TEST(HashTest, TestCustomTypes) {
   c2.task_pairs = {{1000, 1000}, {1000, 1000}, {1000, 1000}, {110, 110}};
   EXPECT_EQ(hash_f3(c1), hash_f3(c2));
 }
+
+
+TEST(HashTest, HashFunction) {
+  EXPECT_EQ(qk::HashFunction(), 0);
+  EXPECT_NE(qk::HashFunction(10), 0);
+  EXPECT_NE(qk::HashFunction(10, 20), 0);
+  EXPECT_NE(qk::HashFunction(10, 20, 30), 0);
+  EXPECT_NE(qk::HashFunction(10, 20, 30, 40), 0);
+}
+

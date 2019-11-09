@@ -155,3 +155,13 @@ TEST(InsertToSet, Basic) {
   unordered_set<int> z = {13, 12};
   quick::InsertToSet(x, &y);
 }
+
+
+TEST(Get, Basic) {
+  std::unordered_map<int, int> m = {{11, 2}, {22, 3}, {33, 4}};
+  EXPECT_EQ(qk::Get(m, 11, 120), 2);
+  EXPECT_EQ(qk::Get(m, 12, 120), 120);
+  std::unordered_map<int, int> m2 = {};
+  EXPECT_EQ(qk::Get(m, 12, 120), 120);
+}
+
