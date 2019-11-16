@@ -26,7 +26,10 @@ using test_specialization = test_specialization_impl<Template, void, Args...>;
 
 
 
-template<class Fallback, template<class...> class Template, class AlwaysVoid, class... Args>
+template<class Fallback,
+         template<class...> class Template,
+         class AlwaysVoid,
+         class... Args>
 struct specialize_if_can_impl: public Fallback {};
 
 template<class Fallback, template<class...> class Template, class... Args>
@@ -48,9 +51,6 @@ struct is_specialization: std::false_type {};
 
 template<template<typename...> class Template, typename... Args>
 struct is_specialization<Template<Args...>, Template>: std::true_type {};
-
-
-
 
 
 }  // namespace quick

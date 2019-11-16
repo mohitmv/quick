@@ -120,8 +120,7 @@ template<typename T>
 using HasDebugStream = std::is_same<void,
                                     decltype(
                                       std::declval<const T&>().DebugStream(
-                                        std::declval<quick::DebugStream&>())
-                                    )>;
+                                        std::declval<quick::DebugStream&>()))>;
 
 template<typename T>
 using IsOstreamDefinedForPair = decltype(
@@ -162,7 +161,8 @@ operator<<(ostream& os, const T& input) {
 
 template<typename T>
 std::enable_if_t<(quick::is_specialization<T, std::pair>::value &&
-  not quick::test_specialization<quick::detail::IsOstreamDefinedForPair, T>::value)
+  not quick::test_specialization<quick::detail::IsOstreamDefinedForPair,
+                                 T>::value)
 , ostream>&
 operator<<(ostream& os, const T& input) {
   os << "(" << input.first << ", " << input.second << ")";

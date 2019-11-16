@@ -178,7 +178,7 @@ auto ToUnorderedSet(
 
 template<typename IMap, typename OMap>
 void InvertMap(const IMap& imap, OMap* output) {
-  for (auto& item: imap) {
+  for (auto& item : imap) {
     output->emplace(std::make_pair(item.second, item.first));
   }
 }

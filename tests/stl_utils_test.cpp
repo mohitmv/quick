@@ -93,14 +93,9 @@ TEST(SetUnion, Basic) {
   EXPECT_EQ(qk::SetUnion(std::set<int> {10, 20},
                          std::unordered_set<int> {20, 30},
                          std::unordered_set<int> {120, 530},
-                         std::unordered_set<int> {320, 330}
-                         ),
+                         std::unordered_set<int> {320, 330}),
             (std::set<int> {10, 20, 30, 120, 530, 320, 330}));
-
-
 }
-
-
 
 
 TEST(SetMinus, Basic) {

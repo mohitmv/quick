@@ -40,6 +40,9 @@ configs.dependency_configs = [
   br.CppLibrary("src/type_traits",
                 hdrs = ["include/quick/type_traits.hpp"]),
 
+  br.CppLibrary("src/utility",
+                hdrs = ["include/quick/utility.hpp"]),
+
   br.CppLibrary("src/stl_utils",
                 hdrs = ["include/quick/stl_utils.hpp"]),
 
@@ -121,6 +124,10 @@ configs.dependency_configs = [
   br.CppTest("tests/type_traits_test",
                 srcs = ["tests/type_traits_test.cpp"],
                 deps = ["src/type_traits"]),
+
+  br.CppTest("tests/utility_test",
+                srcs = ["tests/utility_test.cpp"],
+                deps = ["src/utility"]),
 
 
 ];

@@ -16,8 +16,6 @@ ostream& operator<<(ostream& os, const std::pair<T1, T2>& input) {
 }
 }
 
-#include "quick/debug.hpp"
-
 #include <iostream>
 #include <map>
 #include <utility>
@@ -26,6 +24,7 @@ ostream& operator<<(ostream& os, const std::pair<T1, T2>& input) {
 #include <string>
 
 #include "gtest/gtest.h"
+#include "quick/debug.hpp"
 
 using std::make_pair;
 using std::pair;

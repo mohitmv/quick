@@ -63,8 +63,8 @@ TEST(OstreamExtensionTest, DebugStream) {
       string s = "Default Value";
       vector<S> children;
       S() {}
-      S(const string& s): s(s) {}
-      void DebugStream(quick::DebugStream& ds) const {
+      explicit S(const string& s): s(s) {}
+      void DebugStream(quick::DebugStream& ds) const {  // NOLINT
         ds << "s = " << s << "\n"
            << "children = " << children;
       }
@@ -112,11 +112,11 @@ TEST(OstreamExtensionTest, DebugStream) {
     struct S2 {
       string s = "Default Value";
       S2() {}
-      S2(const string& s): s(s) {}
+      explicit S2(const string& s): s(s) {}
       std::string DebugString() const {
         return "DebugString won't be used if DebugStream is available";
       }
-      void DebugStream(quick::DebugStream& ds) const {
+      void DebugStream(quick::DebugStream& ds) const {  // NOLINT
         ds << "s = " << s;
       }
     };
