@@ -46,6 +46,8 @@
 #include <tuple>
 #include <list>
 
+#include <quick/debug_stream.hpp>
+
 namespace quick {
 namespace detail {
 
@@ -102,7 +104,28 @@ void PrintTuple(std::ostream& os, const std::tuple<Ts...>& input) {
 }
 
 
-template<typename T, typename...> using FirstType = T;
+
+// In case of success: output type is an instance of std::true_type
+// In case of failure: Either fails while substituting or output type is an
+//                     instance of std::false_type
+// Need a wrapper to cover substitution failure ? use this =>
+// quick::specialize_if_can<std::false_type, HasDebugString, T>::value
+// It will fall back on `std::false_type` in the case of substitution failure.
+template<typename T>
+using HasDebugString = std::is_same<
+                          std::string,
+                          decltype(std::declval<const T&>().DebugString())>;
+
+template<typename T>
+using HasDebugStream = std::is_same<void,
+                                    decltype(
+                                      std::declval<const T&>().DebugStream(
+                                        std::declval<quick::DebugStream&>()))>;
+
+template<typename T>
+using IsOstreamDefinedForPair = decltype(
+      std::operator<<(std::declval<std::ostream&>(), std::declval<const T&>()));
+
 
 
 }  // namespace detail
@@ -118,50 +141,52 @@ std::string ToString(const T& input) {
 
 namespace std {
 
+
 template<typename T>
-quick::detail::FirstType<ostream, decltype(&T::DebugString)>& operator<<(
-    ostream& os,
-    const T& input) {
+std::enable_if_t<(quick::detail::HasDebugString<T>::value &&
+                  not(quick::specialize_if_can<std::false_type,
+                                               quick::detail::HasDebugStream,
+                                               T>::value)), ostream>&
+operator<<(ostream& os, const T& input) {
   os << input.DebugString();
   return os;
 }
 
-// Prints a std::pair
-template<typename T1, typename T2>
-ostream& operator<<(ostream& os, const std::pair<T1, T2>& input) {
-  os << "(" << input.first << ", " << input.second << ")";
+template<typename T>
+std::enable_if_t<quick::detail::HasDebugStream<T>::value, ostream>&
+operator<<(ostream& os, const T& input) {
+  os << quick::DebugStream(input).str();
   return os;
 }
 
 template<typename T>
-ostream& operator<<(ostream& os, const std::vector<T>& input) {
+std::enable_if_t<(quick::is_specialization<T, std::pair>::value &&
+  not quick::test_specialization<quick::detail::IsOstreamDefinedForPair,
+                                 T>::value)
+, ostream>&
+operator<<(ostream& os, const T& input) {
+  os << "(" << input.first << ", " << input.second << ")";
+  return os;
+}
+
+
+template<typename T>
+std::enable_if_t<(quick::is_specialization<T, std::vector>::value ||
+                  quick::is_specialization<T, std::list>::value ||
+                  quick::is_specialization<T, std::unordered_set>::value ||
+                  quick::is_specialization<T, std::set>::value), ostream>&
+operator<<(ostream& os, const T& input) {
   return quick::detail::PrintContainer(os, input);
 }
 
 template<typename T>
-ostream& operator<<(ostream& os, const std::list<T>& input) {
-  return quick::detail::PrintContainer(os, input);
-}
-
-template<typename T>
-ostream& operator<<(ostream& os, const std::unordered_set<T>& input) {
-  return quick::detail::PrintContainer(os, input);
-}
-
-template<typename T>
-ostream& operator<<(ostream& os, const std::set<T>& input) {
-  return quick::detail::PrintContainer(os, input);
-}
-
-template<typename T1, typename T2>
-ostream& operator<<(ostream& os, const std::map<T1, T2>& input) {
+std::enable_if_t<(quick::is_specialization<T, std::map>::value ||
+                  quick::is_specialization<T, std::unordered_map>::value),
+                 ostream>&
+operator<<(ostream& os, const T& input) {
   return quick::detail::PrintMap(os, input);
 }
 
-template<typename T1, typename T2>
-ostream& operator<<(ostream& os, const std::unordered_map<T1, T2>& input) {
-  return quick::detail::PrintMap(os, input);
-}
 
 template<typename... Ts>
 ostream& operator<<(ostream& os, const std::tuple<Ts...>& input) {

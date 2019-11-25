@@ -1,16 +1,16 @@
-// Copyright: ThoughtSpot Inc. 2019
-// Author: Mohit Saini (mohit.saini@thoughtspot.com)
+// Copyright: 2019 Mohit Saini
+// Author: Mohit Saini (mohitsaini1196@gmail.com)
 
 #ifndef QUICK_HASH_HPP_
 #define QUICK_HASH_HPP_
 
-// quick::Hash Complete Reference : http://bit.ly/2YzejTs
-// Implements quick::Hash by extending std::hash. Supports hashing for complex
+// Implements hash_impl by extending std::hash. Supports hashing for complex
 // types.
 // Sample usage:
-// quick::hash<pair<int, map<int, string>>> hasher;
+// qk::hash<pair<int, map<int, string>>> hasher;
+// std::size_t hashed_value = hasher(make_pair(....));
 // using ComplexType = vector<pair<string, vector<int>>>;
-// quick::hash<tuple<int, string, set<ValueTypeEnum>, ComplexType>>;
+// qk::hash<tuple<int, string, set<ValueTypeEnum>, ComplexType>>;
 // struct ComplexClass {
 //   ....
 //   std::size_t GetHash() const {
@@ -18,7 +18,7 @@
 //     return ....
 //   };
 // };
-// quick::hash<pair<ComplexType, vector<ComplexClass>>> hasher2;
+// qk::hash<pair<ComplexType, vector<ComplexClass>>> hasher2;
 
 #include <utility>
 #include <unordered_set>
@@ -32,14 +32,12 @@
 namespace quick {
 namespace detail_hash_impl {
 template<typename...> using void_t = void;
-}
 
-// `quick::Hash` is ThoughtSpot specfic hash, derived from std::hash.
 // DummyType argument is useful for defining specialization of Hash based on
 // custom type-trait conditions, with use of `enable_if` and `void_t`.
 // - Look at how hash<T> is used for enum types.
 template<typename T, typename DummyType = void>
-struct hash: public std::hash<T> {};
+struct hash_impl: public std::hash<T> {};
 
 // Ordered sequence is a container for which: if a == b then iterator sequence
 // for a and b will be identical. This is necessary condition for the following
@@ -58,7 +56,7 @@ std::size_t OrderedSequenceHash(const Container& input) {
   const int hash_size = sizeof(std::size_t);
   std::string tmp;
   tmp.resize(hash_size * input.size());
-  auto hasher = quick::hash<typename Container::value_type>();
+  auto hasher = hash_impl<typename Container::value_type>();
   int pointer = 0;
   for (auto& e : input) {
     *(reinterpret_cast<std::size_t*>(&tmp[pointer])) = hasher(e);
@@ -72,8 +70,8 @@ std::size_t OrderedMapHash(const MapContainer& input) {
   const int hash_size = sizeof(std::size_t);
   std::string tmp;
   tmp.resize(hash_size * input.size() * 2);
-  auto key_hasher = quick::hash<typename MapContainer::key_type>();
-  auto value_hasher = quick::hash<typename MapContainer::mapped_type>();
+  auto key_hasher = hash_impl<typename MapContainer::key_type>();
+  auto value_hasher = hash_impl<typename MapContainer::mapped_type>();
   int pointer = 0;
   for (auto& e : input) {
     *(reinterpret_cast<std::size_t*>(&tmp[pointer])) = key_hasher(e.first);
@@ -88,8 +86,8 @@ std::size_t OrderedMapHash(const MapContainer& input) {
 
 template <typename T1, typename T2>
 std::size_t PairHash(const std::pair<T1, T2>& p) {
-  std::vector<std::size_t> v = {quick::hash<T1>()(p.first),
-                                quick::hash<T2>()(p.second)};
+  std::vector<std::size_t> v = {hash_impl<T1>()(p.first),
+                                hash_impl<T2>()(p.second)};
   return OrderedSequenceHash(v);
 }
 
@@ -102,7 +100,7 @@ template<typename... Ts, std::size_t... index>
 std::size_t TupleHashImplHelper(const std::tuple<Ts...> &input,
                                 std::index_sequence<index...>) {
   std::vector<std::size_t> hashed_elements = {
-    quick::hash<typename std::tuple_element<index, std::tuple<Ts...>>::type>()(
+    hash_impl<typename std::tuple_element<index, std::tuple<Ts...>>::type>()(
       std::get<index>(input))...
   };
   return OrderedSequenceHash(hashed_elements);
@@ -120,49 +118,49 @@ std::size_t TupleHash(const std::tuple<Ts...>& input) {
 // std containers to make them more generic.
 
 template<typename T>
-struct hash<std::vector<T>> {
+struct hash_impl<std::vector<T>> {
   std::size_t operator()(const std::vector<T>& t) const {
     return OrderedSequenceHash(t);
   }
 };
 
 template<typename T>
-struct hash<std::list<T>> {
+struct hash_impl<std::list<T>> {
   std::size_t operator()(const std::list<T>& t) const {
     return OrderedSequenceHash(t);
   }
 };
 
-template<typename T>
-struct hash<std::set<T>> {
-  std::size_t operator()(const std::set<T>& t) const {
+template<typename... Ts>
+struct hash_impl<std::set<Ts...>> {
+  std::size_t operator()(const std::set<Ts...>& t) const {
     return OrderedSequenceHash(t);
   }
 };
 
-template<typename T1, typename T2>
-struct hash<std::map<T1, T2>> {
-  std::size_t operator()(const std::map<T1, T2>& t) const {
+template<typename... Ts>
+struct hash_impl<std::map<Ts...>> {
+  std::size_t operator()(const std::map<Ts...>& t) const {
     return OrderedMapHash(t);
   }
 };
 
 template<typename T1, typename T2>
-struct hash<std::pair<T1, T2>> {
+struct hash_impl<std::pair<T1, T2>> {
   std::size_t operator()(const std::pair<T1, T2>& t) const {
     return PairHash(t);
   }
 };
 
 template<typename... Ts>
-struct hash<std::tuple<Ts...>> {
+struct hash_impl<std::tuple<Ts...>> {
   std::size_t operator()(const std::tuple<Ts...>& t) const {
     return TupleHash(t);
   }
 };
 
 template<typename T>
-struct hash<T, std::enable_if_t<std::is_enum<T>::value>> {
+struct hash_impl<T, std::enable_if_t<std::is_enum<T>::value>> {
   std::size_t operator()(const T& t) const {
     return static_cast<std::size_t>(t);
   }
@@ -187,21 +185,44 @@ struct hash<T, std::enable_if_t<std::is_enum<T>::value>> {
 //   T3 t3;
 //   ....
 //   std::size_t GetHash() const {
-//      return quick::HashF(make_tuple(t1, t2, t2));
+//      return qk::HashFunction(t1, t2, t2);
 //   }
 // };
 // And then define the GetHash for T1, T2, and T3 recursively.
 template<typename T>
-struct hash<T, quick::detail_hash_impl::void_t<decltype(&T::GetHash)>> {
+struct hash_impl<T, quick::detail_hash_impl::void_t<decltype(&T::GetHash)>> {
   std::size_t operator()(const T& t) const {
     return t.GetHash();
   }
 };
 
+}  // namespace detail_hash_impl
+
+template<typename T> struct hash: public detail_hash_impl::hash_impl<T> {};
+
+// Deprecated; use `HashFunction` instead.
 template<typename T>
 inline std::size_t HashF(const T& input) {
   return quick::hash<T>()(input);
 }
+
+inline std::size_t HashFunction() {
+  return 0;
+}
+
+template<typename T>
+inline std::size_t HashFunction(const T& input) {
+  return quick::hash<T>()(input);
+}
+
+template<typename T1, typename T2, typename... Ts>
+inline std::size_t HashFunction(const T1& i1, const T2& i2, const Ts&... is) {
+  std::vector<std::size_t> v = {quick::HashFunction(i1),
+                                quick::HashFunction(i2),
+                                quick::HashFunction(is)...};
+  return quick::HashFunction(v);
+}
+
 
 }  // namespace quick
 

@@ -22,6 +22,6 @@ def RunLintChecks(configs, files = None):
 def RunAllTests(configs, pp = 20, tests = None):
   if (tests == None):
     tests = list(i["name"] for i in configs.dependency_configs if i["type"] == "CppTest")
-  infra_lib.RunLinuxCommand("scons -j"+str(pp) + " " + " ".join(tests));
+  infra_lib.RunLinuxCommand("scons -j"+str(pp) + " mode=" + configs.compiler_options.mode + " " + " ".join(tests));
   for i in tests:
-    infra_lib.RunLinuxCommand("./build-dbg/" + i);
+    infra_lib.RunLinuxCommand("./" + configs.build_dir + "/" + i);

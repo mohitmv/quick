@@ -1,7 +1,7 @@
 // Copyright: 2019 Mohit Saini
 // Author: Mohit Saini (mohitsaini1196@gmail.com)
 
-#include "quick/unordered_map.hpp"
+#include "quick/unordered_set.hpp"
 
 #include <map>
 #include <utility>
@@ -22,15 +22,15 @@ using std::make_tuple;
 
 
 using std::size_t;
-using std::make_pair;
+
 
 // testing ts::unordered_map for complex keys ex: tuple, std::vector,
 // std::map, ... etc.
-TEST(UnorderedMapTest, Basic) {
+TEST(UnorderedSetTest, Basic) {
   enum Gender {MALE, FEMALE, OTHER_GENDER};
-  qk::unordered_map<pair<int, Gender>, int> m;
-  m[make_pair(10, MALE)] = 110;
-  m[make_pair(13, FEMALE)] = 120;
-  EXPECT_EQ(m.at(make_pair(10, MALE)), 110);
-  EXPECT_EQ(m.at(make_pair(13, FEMALE)), 120);
+  quick::unordered_set<pair<int, Gender>> m;
+  m.insert(make_pair(10, MALE));
+  m.insert(make_pair(13, FEMALE));
+  EXPECT_EQ(m.size(), 2);
 }
+

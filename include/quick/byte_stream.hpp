@@ -30,6 +30,7 @@ static const bool is_little_endian_system = IsLittleEndianSystem();
 }
 
 
+// Can Store at max 4G data.
 class ByteStream {
   struct Error {
     enum Type {INVALID_READ};
@@ -37,7 +38,7 @@ class ByteStream {
   };
   static constexpr bool little_endian_storage = true;
   std::string str_value;
-  int read_ptr = 0;
+  uint32_t read_ptr = 0;
 
  public:
   const std::string& str() const {
@@ -54,13 +55,13 @@ class ByteStream {
   std::enable_if_t<(std::is_fundamental<T>::value ||
                     std::is_enum<T>::value), ByteStream>&
   operator<<(const T& input) {
-    int len = str_value.size();
+    uint32_t len = str_value.size();
     str_value.resize(len + sizeof(T));
     const auto* input_ptr = reinterpret_cast<const uint8_t*>(&input);
     if (little_endian_storage == detail::is_little_endian_system) {
       std::memcpy(&str_value[len], input_ptr, sizeof(T));
     } else {
-      for (int i = 0; i < sizeof(T); i++) {
+      for (uint32_t i = 0; i < sizeof(T); i++) {
         str_value[len + i] = input_ptr[sizeof(T) -i - 1];
       }
     }
@@ -71,7 +72,7 @@ class ByteStream {
   std::enable_if_t<(std::is_fundamental<T>::value ||
                     std::is_enum<T>::value), ByteStream>&
   operator>>(T& output) {
-    int len = str_value.size();
+    uint32_t len = str_value.size();
     if (read_ptr + sizeof(T) > len) {
       throw Error {Error::INVALID_READ};
     }
@@ -79,7 +80,7 @@ class ByteStream {
     if (little_endian_storage == detail::is_little_endian_system) {
       std::memcpy(output_ptr, &str_value[read_ptr], sizeof(T));
     } else {
-      for (int i = 0; i < sizeof(T); i++) {
+      for (uint32_t i = 0; i < sizeof(T); i++) {
         output_ptr[sizeof(T) -i - 1] = str_value[read_ptr + i];
       }
     }
@@ -151,6 +152,16 @@ DeserializeTuple(ByteStream& bs,  // NOLINT
   DeserializeTuple(bs, output, std::index_sequence<I+1>());
 }
 
+template<typename MapType>
+ByteStream& SerializeMap(ByteStream& bs, const MapType& input) {  // NOLINT
+  bs << static_cast<uint64_t>(input.size());
+  for (const auto& item : input) {
+    bs << item.first << item.second;
+  }
+  return bs;
+}
+
+
 }  // namespace detail
 
 template<typename... Ts>
@@ -212,57 +223,63 @@ operator<<(ByteStream& bs, const T& input) {
   return bs;
 }
 
-template<typename T>
-std::enable_if_t<(quick::is_specialization<T, std::map>::value ||
-                  quick::is_specialization<T, std::unordered_map>::value),
-                 ByteStream>&
-operator<<(ByteStream& bs, const T& input) {
-  bs << static_cast<uint64_t>(input.size());
-  for (const auto& item : input) {
-    bs << item.first << item.second;
-  }
-  return bs;
+template<typename... Ts>
+ByteStream& operator<<(ByteStream& bs, const std::unordered_map<Ts...>& input) {
+  return detail::SerializeMap(bs, input);
 }
 
-template<typename T>
-std::enable_if_t<(quick::is_specialization<T, std::map>::value ||
-                  quick::is_specialization<T, std::unordered_map>::value),
-                 ByteStream>&
-operator>>(ByteStream& bs, T& output) {
+template<typename... Ts>
+ByteStream& operator<<(ByteStream& bs, const std::map<Ts...>& input) {
+  return detail::SerializeMap(bs, input);
+}
+
+template<typename K, typename... Ts>
+ByteStream& operator>>(ByteStream& bs, std::unordered_map<K, Ts...>& output) {
   uint64_t container_size;
   bs >> container_size;
   output.clear();
-  for (int i = 0; i < container_size; i++) {
-    typename T::key_type k;
-    typename T::mapped_type v;
-    bs >> k >> v;
-    output.emplace(std::make_pair(k, v));
+  output.reserve(container_size);
+  K k;
+  for (uint32_t i = 0; i < container_size; i++) {
+    bs >> k;
+    bs >> output[k];
   }
   return bs;
 }
 
-
+template<typename K, typename... Ts>
+ByteStream& operator>>(ByteStream& bs, std::map<K, Ts...>& output) {
+  uint64_t container_size;
+  bs >> container_size;
+  output.clear();
+  K k;
+  for (uint32_t i = 0; i < container_size; i++) {
+    bs >> k;
+    bs >> output[k];
+  }
+  return bs;
+}
 
 template<typename T>
 ByteStream& operator>>(ByteStream& bs, std::vector<T>& output) {
   uint64_t vector_size;
   bs >> vector_size;
   output.resize(vector_size);
-  for (int i = 0; i < vector_size; i++) {
+  for (uint32_t i = 0; i < vector_size; i++) {
     bs >> output[i];
   }
   return bs;
 }
 
 template<typename T>
-std::enable_if_t<(quick::is_specialization<T, std::list>::value ||
-                  quick::is_specialization<T, std::unordered_set>::value ||
-                  quick::is_specialization<T, std::set>::value), ByteStream>&
+std::enable_if_t<(quick::is_specialization<T, std::unordered_set>::value),
+                 ByteStream>&
 operator>>(ByteStream& bs, T& output) {
   uint64_t container_size;
   bs >> container_size;
   output.clear();
-  for (int i = 0; i < container_size; i++) {
+  output.reserve(container_size);
+  for (uint32_t i = 0; i < container_size; i++) {
     typename T::value_type v;
     bs >> v;
     output.insert(std::move(v));
@@ -271,6 +288,20 @@ operator>>(ByteStream& bs, T& output) {
 }
 
 
+template<typename T>
+std::enable_if_t<(quick::is_specialization<T, std::list>::value ||
+                  quick::is_specialization<T, std::set>::value), ByteStream>&
+operator>>(ByteStream& bs, T& output) {
+  uint64_t container_size;
+  bs >> container_size;
+  output.clear();
+  for (uint32_t i = 0; i < container_size; i++) {
+    typename T::value_type v;
+    bs >> v;
+    output.insert(std::move(v));
+  }
+  return bs;
+}
 
 
 }  // namespace quick

@@ -1,5 +1,5 @@
-// Copyright: ThoughtSpot Inc. 2019
-// Author: Mohit Saini (mohit.saini@thoughtspot.com)
+// Copyright: 2019 Mohit Saini
+// Author: Mohit Saini (mohitsaini1196@gmail.com)
 
 #ifndef QUICK_UNORDERED_MAP_HPP_
 #define QUICK_UNORDERED_MAP_HPP_
@@ -18,11 +18,11 @@ template <class Key,
           typename Hasher = quick::hash<Key>,
           typename Pred = std::equal_to<Key>,
           typename Alloc = std::allocator<std::pair<const Key, T>>>
-class unordered_map : public std::unordered_map<Key,
-                                                T,
-                                                Hasher,
-                                                Pred,
-                                                Alloc> {};
+using unordered_map = std::unordered_map<Key,
+                                          T,
+                                          Hasher,
+                                          Pred,
+                                          Alloc>;
 
 }  // namespace quick
 

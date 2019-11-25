@@ -3,6 +3,7 @@
 
 #include "quick/debug.hpp"
 
+#include <iostream>
 #include <map>
 #include <utility>
 #include <vector>
@@ -19,6 +20,8 @@ using std::string;
 using std::unordered_set;
 using std::unordered_map;
 using std::vector;
+using std::cout;
+using std::endl;
 
 TEST(OstreamExtensionTest, Basic) {
   std::ostringstream oss;
@@ -54,10 +57,78 @@ TEST(OstreamExtensionTest, Basic) {
 }
 
 
+TEST(OstreamExtensionTest, DebugStream) {
+  {
+    struct S {
+      string s = "Default Value";
+      vector<S> children;
+      S() {}
+      explicit S(const string& s): s(s) {}
+      void DebugStream(quick::DebugStream& ds) const {  // NOLINT
+        ds << "s = " << s << "\n"
+           << "children = " << children;
+      }
+    };
+    pair<string, vector<S>> p5;
+    p5.first = "A";
+    p5.second.resize(3);
+    p5.second.emplace_back(S("11"));
+    p5.second.emplace_back(S("12"));
+    p5.second.back().children.emplace_back(S("11.11"));
+    p5.second.back().children.emplace_back(S("11.12"));
+    std::ostringstream oss;
+    oss << p5;
+    // Use this python code to generate this C++ string to expect.
+    // a = """<output>"""
+    // print("\n".join('"'+i+"\\n"+'"' for i in a.split("\n")))
+    string expected_output =
+      "(A, [{\n"
+      "  s = Default Value\n"
+      "  children = []\n"
+      "}, {\n"
+      "  s = Default Value\n"
+      "  children = []\n"
+      "}, {\n"
+      "  s = Default Value\n"
+      "  children = []\n"
+      "}, {\n"
+      "  s = 11\n"
+      "  children = []\n"
+      "}, {\n"
+      "  s = 12\n"
+      "  children = [\n"
+      "    {\n"
+      "      s = 11.11\n"
+      "      children = []\n"
+      "    }, {\n"
+      "      s = 11.12\n"
+      "      children = []\n"
+      "    }\n"
+      "  ]\n"
+      "}])";
+    EXPECT_EQ(expected_output, oss.str());
+  }
+  {
+    struct S2 {
+      string s = "Default Value";
+      S2() {}
+      explicit S2(const string& s): s(s) {}
+      std::string DebugString() const {
+        return "DebugString won't be used if DebugStream is available";
+      }
+      void DebugStream(quick::DebugStream& ds) const {  // NOLINT
+        ds << "s = " << s;
+      }
+    };
+    S2 s2("s2 created");
+    std::ostringstream oss;
+    oss << s2;
+    EXPECT_EQ("{\n  s = s2 created\n}", oss.str());
+  }
+}
+
 TEST(ToString, Basic) {
   pair<int, pair<int, int>> p(110, {10, 44});
   EXPECT_EQ(qk::ToString(p), "(110, (10, 44))");
 }
-
-
 

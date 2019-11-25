@@ -1,5 +1,5 @@
-// Copyright: ThoughtSpot Inc. 2019
-// Author: Mohit Saini (mohit.saini@thoughtspot.com)
+// Copyright: 2019 Mohit Saini
+// Author: Mohit Saini (mohitsaini1196@gmail.com)
 
 #include "quick/hash.hpp"
 
@@ -36,6 +36,7 @@ TEST(HashTest, TestEnumAndPair) {
   EXPECT_NE(h1, h2);
   EXPECT_NE(h1, h3);
   EXPECT_NE(h2, h3);
+  EXPECT_EQ(qk::HashFunction(FEMALE), 1ULL);
 }
 
 // testing qk::hash for std::tuple, std::map.
@@ -119,3 +120,13 @@ TEST(HashTest, TestCustomTypes) {
   c2.task_pairs = {{1000, 1000}, {1000, 1000}, {1000, 1000}, {110, 110}};
   EXPECT_EQ(hash_f3(c1), hash_f3(c2));
 }
+
+
+TEST(HashTest, HashFunction) {
+  EXPECT_EQ(qk::HashFunction(), 0);
+  EXPECT_NE(qk::HashFunction(10), 0);
+  EXPECT_NE(qk::HashFunction(10, 20), 0);
+  EXPECT_NE(qk::HashFunction(10, 20, 30), 0);
+  EXPECT_NE(qk::HashFunction(10, 20, 30, 40), 0);
+}
+

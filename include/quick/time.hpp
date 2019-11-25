@@ -8,7 +8,7 @@
 
 namespace quick {
 
-int64_t GetEpochMicroSeconds() {
+inline int64_t GetEpochMicroSeconds() {
   using namespace std::chrono;  // NOLINT
   auto epoch_time = system_clock::now().time_since_epoch();
   return duration_cast<microseconds>(epoch_time).count();
