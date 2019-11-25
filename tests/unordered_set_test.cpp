@@ -1,5 +1,5 @@
-// Copyright: ThoughtSpot Inc. 2019
-// Author: Mohit Saini (mohit.saini@thoughtspot.com)
+// Copyright: 2019 Mohit Saini
+// Author: Mohit Saini (mohitsaini1196@gmail.com)
 
 #include "quick/unordered_set.hpp"
 

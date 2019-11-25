@@ -1,5 +1,5 @@
-// Copyright: ThoughtSpot Inc. 2019
-// Author: Mohit Saini (mohit.saini@thoughtspot.com)
+// Copyright: 2019 Mohit Saini
+// Author: Mohit Saini (mohitsaini1196@gmail.com)
 
 #ifndef QUICK_UNORDERED_MAP_HPP_
 #define QUICK_UNORDERED_MAP_HPP_

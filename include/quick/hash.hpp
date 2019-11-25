@@ -1,11 +1,10 @@
-// Copyright: ThoughtSpot Inc. 2019
-// Author: Mohit Saini (mohit.saini@thoughtspot.com)
+// Copyright: 2019 Mohit Saini
+// Author: Mohit Saini (mohitsaini1196@gmail.com)
 
 #ifndef QUICK_HASH_HPP_
 #define QUICK_HASH_HPP_
 
-// quick::Hash Complete Reference : http://bit.ly/2YzejTs
-// Implements quick::Hash by extending std::hash. Supports hashing for complex
+// Implements quick::hash by extending std::hash. Supports hashing for complex
 // types.
 // Sample usage:
 // quick::hash<pair<int, map<int, string>>> hasher;
@@ -34,7 +33,6 @@ namespace detail_hash_impl {
 template<typename...> using void_t = void;
 }
 
-// `quick::Hash` is ThoughtSpot specfic hash, derived from std::hash.
 // DummyType argument is useful for defining specialization of Hash based on
 // custom type-trait conditions, with use of `enable_if` and `void_t`.
 // - Look at how hash<T> is used for enum types.
@@ -187,7 +185,7 @@ struct hash<T, std::enable_if_t<std::is_enum<T>::value>> {
 //   T3 t3;
 //   ....
 //   std::size_t GetHash() const {
-//      return quick::HashF(make_tuple(t1, t2, t2));
+//      return quick::hashF(make_tuple(t1, t2, t2));
 //   }
 // };
 // And then define the GetHash for T1, T2, and T3 recursively.
