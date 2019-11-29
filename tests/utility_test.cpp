@@ -9,12 +9,3 @@
 
 #include "gtest/gtest.h"
 
-
-
-TEST(StdApply, Basic) {
-  auto lF = [](int x, int y, char c) {
-    return x + y + static_cast<int>(c);
-  };
-  EXPECT_EQ(quick::apply(lF, std::make_tuple(10, 20, 'a')), 127);
-}
-
