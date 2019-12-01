@@ -21,22 +21,32 @@ struct TypeWrapper: AbstractBaseType {
   TypeWrapper(Args&&... args): object_(args...) {}
 };
 
-template<std::size_t N, typename T, typename... Ts>
-struct GetNthType {
-  using type = typename GetNthType<N - 1, Ts...>::type;
-};
 
-template<typename T, typename... Ts>
-struct GetNthType<0, T, Ts...> {
-  using type = T;
-};
+template<std::size_t i, typename... Ts> struct TypeListImpl;
+
+template<std::size_t i> struct TypeListImpl<i> {};
+
+template<std::size_t i, typename T, typename... Ts>
+struct TypeListImpl<i, T, Ts...>: TypeListImpl<i+1, Ts...> {};
+
+template<typename... Ts> using TypeList = TypeListImpl<0, Ts...>;
+
+template<std::size_t index, typename T, typename... Ts>
+T GetNthTypeFromTypeListFunc(TypeListImpl<index, T, Ts...>& input) {
+  return std::declval<T>();
+}
+
+template<std::size_t index, typename... Ts>
+using GetNthType = decltype(GetNthTypeFromTypeListFunc<index>(
+                                  std::declval<TypeList<Ts...>&>()));
+
 
 }  // namespace variant_impl
 
 template<typename... Ts>
 struct variant {
   template<std::size_t index>
-  using NthType = typename variant_impl::GetNthType<index, Ts...>::type;
+  using NthType = typename variant_impl::GetNthType<index, Ts...>;
   template<std::size_t index>
   using NthTypeWrapper = variant_impl::TypeWrapper<NthType<index>>;
   template<std::size_t index, typename... Args>
