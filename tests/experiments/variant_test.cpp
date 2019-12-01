@@ -6,7 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
-
+#include <quick/debug.hpp>
 #include "gtest/gtest.h"
 
 using std::cout;
@@ -15,38 +15,108 @@ using std::string;
 using std::vector;
 
 TEST(QuickVariant, Basic) {
-
   qk::variant<int, string, vector<int>> v, v3;
   v.at<0>() = 112;
-  cout << v.at<0>() << endl;
+  EXPECT_EQ(v.at<0>(), 112);
   v.at<1>() = "Saini Mohit";
-  cout << v.at<1>() << endl;
+  EXPECT_EQ(v.at<1>(), "Saini Mohit");
   const auto& v1 = v;
-  cout << v1.at<1>() << endl;
-  // cout << v1.at<0>() << endl;
-  v.at<2>(10, 2);
-  cout << v1.at<2>().size() << endl;
-  cout << v1.selected_type() << endl;
-  cout << v1.initialized() << endl;
-  // v3 = std::move(v1);
+  EXPECT_EQ(v1.at<1>(), "Saini Mohit");
+  v.at<2>(10, 212);
+  EXPECT_EQ(v1.at<2>().size(), 10U);
+  EXPECT_EQ(v1.at<2>()[5], 212);
+  EXPECT_EQ(v1.selected_type(), 2U);
+  EXPECT_TRUE(v1.initialized());
+  EXPECT_EQ(v.at<2>().size(), 10U);
+  v3 = std::move(v);
+  EXPECT_EQ(v3.at<2>().size(), 10U);
+  v3.at<2>() = {330, 550, 2000};
+  v = std::move(v3);
+  EXPECT_EQ(v.at<2>().at(1), 550);
+  auto v4 = v1;
+  v.at<1>() = std::to_string(v4.at<2>().at(2)) + "_Abc";
+  auto v2 = v;
+  EXPECT_EQ(v2.at<1>(), "2000_Abc");
+  EXPECT_ANY_THROW((v1.at<0>()));
+}
+
+
+TEST(QuickVariant, CustomType) {
+  struct Values {
+    vector<int> counts;
+    Values(): counts(7, 0) {}
+    void Reset() { counts.clear(); counts.resize(7, 0); }
+    Values& CopyCtr(int x) {counts[0] += x; return *this;}
+    Values& CopyAssign(int x) {counts[1] += x; return *this;}
+    Values& MoveCtr(int x) {counts[2] += x; return *this;}
+    Values& MoveAssign(int x) {counts[3] += x; return *this;}
+    Values& SimpleCtr(int x) {counts[4] += x; return *this;}
+    Values& DefaultCtr(int x) {counts[5] += x; return *this;}
+    Values& Dtr(int x) {counts[6] += x; return *this;}
+    bool operator==(const Values& rhs) const {
+      return (counts == rhs.counts);
+    }
+    int Sum() const {
+      int o = 0;
+      for (auto i : counts)
+        o += i;
+      return o;
+    }
+  };
+  static Values values;
+  values.Reset();
+  struct S {
+    int x;
+    S(): x(10) {values.DefaultCtr(1);}
+    S(int x): x(x) { values.SimpleCtr(1); }
+    S(const S&) { values.CopyCtr(1); }
+    S(S&&) noexcept { values.MoveCtr(1);}
+    S& operator=(const S&) { values.CopyAssign(1); return *this;}
+    S& operator=(S&&) noexcept { values.MoveAssign(1); return *this;}
+    ~S() { values.Dtr(1);}
+  };
+  quick::variant<int, vector<S>, S, quick::variant<int, S>> v;
   {
-    using namespace quick::variant_impl;
-    using TL = TypeList<int, string, int, int, vector<int>>;
-    using A = GetNthType<0, int, string, int>;
-    using B = GetNthType<1, int, string, int>;
-
-    A x = 4;
-    (void)x;
-    B y = "Saini Mohit";
-    cout << y << endl;
-
-    // TL tl_e;
-    // // GetNthTypeFromTypeList<0>(tl_e) = 44;
-    // using T0 = TL::At<0>;
-    // T0 x = 44;
-    // cout << x << endl;
-
+    EXPECT_EQ(values.Sum(), 0);
+    v.at<0>() = 11;
+    EXPECT_EQ(values.Sum(), 0);
+    v.at<1>().resize(5);
+    EXPECT_EQ(values, Values().DefaultCtr(5));
+    values.Reset();
+    auto v3 = v;
+    values.Reset();
+    auto v2 = v;
+    EXPECT_EQ(values, Values().CopyCtr(5));
+    values.Reset();
+    v2.at<2>(104);
+    EXPECT_EQ(values, Values().SimpleCtr(1).Dtr(5));
+    EXPECT_EQ(v2.at<2>().x, 104);
+    values.Reset();
+    v = std::move(v2);
+    EXPECT_EQ(values, Values().MoveCtr(1).Dtr(5)) << values.counts;
+    values.Reset();
+    v2 = std::move(v);
+    EXPECT_EQ(values, Values().MoveAssign(1));
+    values.Reset();
+    v = v2;
+    EXPECT_EQ(values, Values().CopyAssign(1));
+    values.Reset();
+    v.at<3>().at<1>(148);
+    EXPECT_EQ(values, Values().SimpleCtr(1).Dtr(1));
+    EXPECT_EQ(v.at<3>().at<1>().x, 148);
+    values.Reset();
+    v3.at<1>()[2] = std::move(v.at<3>().at<1>());
+    EXPECT_EQ(values, Values().MoveAssign(1)) << values.counts;
   }
 }
+
+
+
+
+
+
+
+
+
 
 
