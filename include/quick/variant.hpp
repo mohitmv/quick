@@ -1,8 +1,8 @@
 // Copyright: 2019 Mohit Saini
 // Author: Mohit Saini (mohitsaini1196@gmail.com)
 
-#ifndef QUICK_EXPERIMENTS_VARIANT_HPP_
-#define QUICK_EXPERIMENTS_VARIANT_HPP_
+#ifndef QUICK_VARIANT_HPP_
+#define QUICK_VARIANT_HPP_
 
 #include <cstddef>
 #include <memory>
@@ -25,7 +25,6 @@ struct TypeWrapper: AbstractBaseType {
   TypeWrapper(Args&&... args): object_(std::forward<Args>(args)...) {}
 };
 
-
 template<std::size_t i, typename... Ts> struct TypeListImpl;
 
 template<std::size_t i> struct TypeListImpl<i> {};
@@ -44,9 +43,7 @@ template<std::size_t index, typename... Ts>
 using GetNthType = decltype(GetNthTypeFromTypeListFunc<index>(
                                   std::declval<TypeList<Ts...>&>()));
 
-
 }  // namespace variant_impl
-
 
 template<typename... Ts>
 struct variant {
@@ -77,7 +74,6 @@ struct variant {
     selected_type_ = index;
     return static_cast<NthTypeWrapper<index>&>(*ptr).object_;
   }
-
   template<std::size_t index>
   const NthType<index>& at() const {
     if (ptr == nullptr || selected_type_ != index) {
@@ -151,11 +147,9 @@ struct variant {
   std::size_t selected_type_ = 0;
 };
 
-
-
 }  // namespace quick
 
 namespace qk = quick;
 
 
-#endif  // QUICK_EXPERIMENTS_VARIANT_HPP_
+#endif  // QUICK_VARIANT_HPP_

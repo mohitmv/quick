@@ -1,7 +1,7 @@
 // Copyright: 2019 Mohit Saini
 // Author: Mohit Saini (mohitsaini1196@gmail.com)
 
-#include "quick/experiments/variant.hpp"
+#include "quick/variant.hpp"
 
 #include <iostream>
 #include <vector>
@@ -107,6 +107,26 @@ TEST(QuickVariant, CustomType) {
     values.Reset();
     v3.at<1>()[2] = std::move(v.at<3>().at<1>());
     EXPECT_EQ(values, Values().MoveAssign(1)) << values.counts;
+    values.Reset();
+    auto v4 = std::move(v3);
+    EXPECT_EQ(values, Values()) << values.counts;
+    v3.at<2>(457);
+    EXPECT_EQ(v3.selected_type(), 2);
+    values.Reset();
+    auto v5 = std::move(v3);
+    EXPECT_EQ(values, Values().MoveCtr(1)) << values.counts;
+    values.Reset();
+    v4.clear();
+    EXPECT_FALSE(v4.initialized());
+    EXPECT_EQ(values, Values().Dtr(5)) << values.counts;
+    values.Reset();
+    v4.at<1>().emplace_back(113);
+    EXPECT_EQ(values, Values().SimpleCtr(1)) << values.counts;
+    values.Reset();
+    v4.at<1>().reserve(100);
+    v4.at<1>().emplace_back(114);
+    v4.at<1>().emplace_back(115);
+    EXPECT_EQ(values, Values().MoveCtr(1).Dtr(1).SimpleCtr(2)) << values.counts;
   }
 }
 
