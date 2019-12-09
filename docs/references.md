@@ -6,9 +6,11 @@ namespace qk = quick;
 
 quick::variant
 --------------------------
-Defined in `<quick/variant.hpp>`
+Defined in [`<quick/variant.hpp>`](docs/variant.md)
 
-The utility `quick::variant` serves the purpose of `std::variant` or `boost::variant`. However it differs in usage patterns.  Learn More.
+The utility `quick::variant` serves the purpose of `std::variant` or `boost::variant`. However it differs in usage patterns. [Learn More](docs/variant.md).
+
+
 
 quick::hash
 --------------------------
