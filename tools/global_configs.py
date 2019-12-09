@@ -37,7 +37,7 @@ configs.dependency_configs = [
 
 
   br.CppLibrary("src/variant",
-                hdrs = ["include/quick/experiments/variant.hpp"]),
+                hdrs = ["include/quick/variant.hpp"]),
 
   br.CppLibrary("src/type_traits",
                 hdrs = ["include/quick/type_traits.hpp"]),
@@ -131,8 +131,8 @@ configs.dependency_configs = [
                 srcs = ["tests/utility_test.cpp"],
                 deps = ["src/utility"]),
 
-  br.CppTest("tests/experiments/variant_test",
-                srcs = ["tests/experiments/variant_test.cpp"],
+  br.CppTest("tests/variant_test",
+                srcs = ["tests/variant_test.cpp"],
                 deps = ["src/variant"]),
 
 
