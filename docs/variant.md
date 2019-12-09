@@ -16,7 +16,15 @@ A variant is not permitted to hold references, arrays, or the type void. A varia
 
 `quick::variant` is always be default constructible irrespective of it's types. A default constructed variant doesn't construct any of it's type. Hence default construction of `quick::variant` is feasible even if types are forward declared.
 
-`Types...` can have repeated types. In `quick::variant`, active type is accessed by it's index  in `Types...` pack, not be type (unlike `std::variant` and `boost::variant`).
+`Types...` can have repeated types. In `quick::variant`, active type is accessed by it's index  in `Types...` pack, not by exact type (unlike `std::variant` and `boost::variant`).
+
+```C++
+quick::variant<int, string, vector<quick::variant<int, string>>> v;
+v.at<0>() = 11;
+v.at<1>() = "Abc";
+v.at<2>().resize(3);
+v.at<2>().at(0).at<2> = "Xyz";
+```
 
 
 Member Functions
