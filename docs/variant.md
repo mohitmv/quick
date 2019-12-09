@@ -14,9 +14,7 @@ As with unions, if a variant holds a value of some object type T, the object rep
 
 A variant is not permitted to hold references, arrays, or the type void. A variants can be empty.
 
-`quick::variant` is always be default constructible irrespective of it's types. A default constructed variant doesn't hold any of it's type.
-
-Default construction of `quick::variant` is feasible even if types are forward declared.
+`quick::variant` is always be default constructible irrespective of it's types. A default constructed variant doesn't construct any of it's type. Hence default construction of `quick::variant` is feasible even if types are forward declared.
 
 `Types...` can have repeated types. In `quick::variant`, active type is accessed by it's index  in `Types...` pack, not be type (unlike `std::variant` and `boost::variant`).
 
