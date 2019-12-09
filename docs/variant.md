@@ -96,4 +96,6 @@ const Type_i& variant::at<i>() const;
 
 
 
+## Example
+- [Example-1](../tests/variant_test.cpp)
 
