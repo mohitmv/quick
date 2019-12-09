@@ -67,7 +67,7 @@ struct variant {
     return *this;
   }
   template<std::size_t index, typename... Args>
-  NthType<index>& at(Args&&... args) {
+  constexpr NthType<index>& at(Args&&... args) {
     if (ptr == nullptr || selected_type_ != index) {
       ptr.reset(new NthTypeWrapper<index>(std::forward<Args>(args)...));
     }
@@ -75,7 +75,7 @@ struct variant {
     return static_cast<NthTypeWrapper<index>&>(*ptr).object_;
   }
   template<std::size_t index>
-  const NthType<index>& at() const {
+  constexpr const NthType<index>& at() const {
     if (ptr == nullptr || selected_type_ != index) {
       throw std::runtime_error("[quick::variant]: const access is not allowed "
                                "if corrosponding type is not already set");
@@ -144,7 +144,7 @@ struct variant {
   template<std::size_t index>
   void move_impl_type(variant& other) {}
   std::unique_ptr<quick::variant_impl::AbstractBaseType> ptr;
-  std::size_t selected_type_ = 0;
+  std::size_t selected_type_ = sizeof...(Ts);
 };
 
 }  // namespace quick
