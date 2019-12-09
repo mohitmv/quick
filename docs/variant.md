@@ -23,7 +23,7 @@ quick::variant<int, string, vector<quick::variant<int, string>>> v;
 v.at<0>() = 11;
 v.at<1>() = "Abc";
 v.at<2>().resize(3);
-v.at<2>().at(0).at<2> = "Xyz";
+v.at<2>().at(0).at<2>() = "Xyz";
 ```
 
 
