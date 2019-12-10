@@ -11,6 +11,7 @@
 #include <map>
 #include <string>
 #include <sstream>
+#include <iomanip>
 
 namespace quick {
 
@@ -161,6 +162,13 @@ auto ToSet(const Container& input) {
 }
 
 template<typename Container>
+auto ToVector(const Container& input) {
+  std::vector<typename Container::value_type> output(input.begin(),
+                                                     input.end());
+  return output;
+}
+
+template<typename Container>
 auto ToMap(const Container& input) {
   using OutputType = std::map<typename Container::key_type,
                               typename Container::mapped_type>;
@@ -183,6 +191,15 @@ void InvertMap(const IMap& imap, OMap* output) {
   }
 }
 
+// template<typename T, typename C, typename F>
+// T Transform(const C& container, F func) {
+//   T output;
+//   for (auto& i : container) {
+//     AppendInContainer(func(i), &output);
+//   }
+//   return output;
+// }
+
 template<typename T>
 std::string StringJoin(const T& container, const std::string& join_by = " ") {
   std::ostringstream oss;
@@ -198,7 +215,18 @@ std::string StringJoin(const T& container, const std::string& join_by = " ") {
   return oss.str();
 }
 
+inline std::string QuoteString( const std::string& s ) {
+  std::ostringstream ss;
+  ss << std::quoted( s );
+  return ss.str();
+}
 
+inline std::string UnquoteString( const std::string& s ) {
+  std::string result;
+  std::istringstream ss( s );
+  ss >> std::quoted( result );
+  return result;
+}
 
 }  // namespace quick
 

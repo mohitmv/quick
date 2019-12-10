@@ -26,13 +26,13 @@ void FileException::BuildErrorMessage() {
   std::ostringstream oss;
   switch (type) {
     case UNKNOWN:
-      oss << "FileException: " << file_name;
+      oss << "FileException: \"" << file_name << "\"";
       break;
     case FAILED_TO_OPEN:
-      oss << "FAILED_TO_OPEN: " << file_name;
+      oss << "FAILED_TO_OPEN: \"" << file_name << "\"";
       break;
     case FAILED_TO_WRITE:
-      oss << "FAILED_TO_WRITE: " << file_name;
+      oss << "FAILED_TO_WRITE: \"" << file_name << "\"";
       break;
     default: break;
   }

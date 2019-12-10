@@ -41,8 +41,10 @@ TEST_F(TypeTraitsTest, Basic) {
   EXPECT_EQ((quick::test_specialization<S2, P1>::value), 0);
   EXPECT_EQ((quick::test_specialization<S2, P2>::value), 1);
 
-  EXPECT_EQ((quick::specialize_if_can<Sf, S, int, int>::sx), 10);
-  EXPECT_EQ((quick::specialize_if_can<Sf, S, int, int, int>::sx), 20);
+  int e1 = quick::specialize_if_can<Sf, S, int, int>::sx;
+  EXPECT_EQ(e1, 10);
+  int e2 = quick::specialize_if_can<Sf, S, int, int, int>::sx;
+  EXPECT_EQ(e2, 20);
   EXPECT_EQ((quick::specialize_if_can<std::false_type, S2, P1>::value), false);
   EXPECT_EQ((quick::specialize_if_can<std::false_type, S2, P2>::value), false);
   EXPECT_EQ((quick::specialize_if_can<std::false_type, S3, P1>::value), false);
@@ -50,9 +52,22 @@ TEST_F(TypeTraitsTest, Basic) {
 
   EXPECT_EQ((quick::is_specialization<vector<int>, vector>::value), true);
   // Some stupid bug in google test. Figure that out and uncomment these lines.
-  // EXPECT_EQ((quick::is_specialization<unordered_set<int>,
-  //                                     unordered_set>::value), true);
-  // EXPECT_EQ((quick::is_specialization<vector<int>,
-  //                                     vector>::value), false);
+  {
+    bool v = quick::is_specialization<vector<int>,
+                                      vector>::value;
+
+    EXPECT_EQ(v, true);
+  }
+  {
+    bool v = quick::is_specialization<vector<int>,
+                                      std::set>::value;
+
+    EXPECT_EQ(v, false);
+  }
+  {
+    bool v = (quick::is_specialization<unordered_set<int>,
+                                        unordered_set>::value);
+    EXPECT_EQ(v, true);
+  }
 }
 

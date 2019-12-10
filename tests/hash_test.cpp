@@ -123,10 +123,10 @@ TEST(HashTest, TestCustomTypes) {
 
 
 TEST(HashTest, HashFunction) {
-  EXPECT_EQ(qk::HashFunction(), 0);
-  EXPECT_NE(qk::HashFunction(10), 0);
-  EXPECT_NE(qk::HashFunction(10, 20), 0);
-  EXPECT_NE(qk::HashFunction(10, 20, 30), 0);
-  EXPECT_NE(qk::HashFunction(10, 20, 30, 40), 0);
+  EXPECT_EQ(qk::HashFunction(), 0ULL);
+  EXPECT_NE(qk::HashFunction(10), 0ULL);
+  EXPECT_NE(qk::HashFunction(10, 20), 0ULL);
+  EXPECT_NE(qk::HashFunction(10, 20, 30), 0ULL);
+  EXPECT_NE(qk::HashFunction(10, 20, 30, 40), 0ULL);
 }
 
