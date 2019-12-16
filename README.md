@@ -35,9 +35,9 @@ The utility `quick::unordered_map<..>` in an alias to `std::unordered_map<..>` w
 
 quick::DebugStream
 --------------------------
-Defined in `<quick/debug_stream.hpp>`
+Defined in [`<quick/debug_stream.hpp>`](docs/debug_stream.md)
 
-`class quick::DebugStream` is super intuitive and easy to use utility for constructing human readable representation of complex and deeply nested C++ objects. Learn More.
+`class quick::DebugStream` is super intuitive and easy to use utility for constructing human readable representation of complex and deeply nested C++ objects. [Learn More](docs/debug_stream.md).
 
 quick::ByteStream
 --------------------------
@@ -56,13 +56,13 @@ quick::GetEpochMicroSeconds
 --------------------------
 Defined in `<quick/time.hpp>`
 
-`int64_t quick::GetEpochMicroSeconds()` - Returns the micro seconds elapsed since epoch. Learn More.
+`int64_t quick::GetEpochMicroSeconds()` - Returns the micro seconds elapsed since epoch.
 
 quick::MicroSecondTimer
 --------------------------
-Defined in `<quick/time.hpp>`
+Defined in [`<quick/time.hpp>`](docs/micro_second_timer.md)
 
-`class quick::MicroSecondTimer` - A timer utility useful for measuring the time taken in the processing of a task. Learn More.
+`class quick::MicroSecondTimer` - A timer utility useful for measuring the time taken in the processing of a task. [Learn More](docs/micro_second_timer.md).
 
 quick::test_specialization
 --------------------------
@@ -76,12 +76,24 @@ class test_specialization;
 
 quick::ContainsKey
 -------------------------
-Defined in `<quick/container_utils.hpp>`
+Defined in `<quick/stl_utils.hpp>`
 
 `bool ContainsKey(const C& container, const V& value);`
 Checks if a key is present in the given container.
 
+quick::Get
+-------------
+Defined in `<quick/stl_utils.hpp>`
+```
+template <typename MapType, class KeyType, class FallbackType>
+FallbackType Get(const MapType& input_map,
+                 const KeyType& key,
+                 const Fallback& fallback_object);
+```
+
+- Returns `input_map.at(key)` if defined, else return fallback_object.
+- type `FallbackType` should be same as `MapType::mapped_type`.
+
+
+
 ------------------------------------------------------------------
-
-
-ToDo(*) : Document all other utilities as well.
