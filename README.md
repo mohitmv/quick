@@ -35,9 +35,9 @@ The utility `quick::unordered_map<..>` in an alias to `std::unordered_map<..>` w
 
 quick::DebugStream
 --------------------------
-Defined in `<quick/debug_stream.hpp>`
+Defined in [`<quick/debug_stream.hpp>`](docs/debug_stream.md)
 
-`class quick::DebugStream` is super intuitive and easy to use utility for constructing human readable representation of complex and deeply nested C++ objects. Learn More.
+`class quick::DebugStream` is super intuitive and easy to use utility for constructing human readable representation of complex and deeply nested C++ objects. [Learn More](docs/debug_stream.md).
 
 quick::ByteStream
 --------------------------

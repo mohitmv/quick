@@ -21,16 +21,16 @@ ds << "About Me = " << "{"
    << "name = " << p.name << "\n"
    << "age = " << p.age << "\n"
    << "parents = " << "{"
-   <<  "mother = " << "{"
-   <<  "name = " << p.mother.name << "\n"
-   <<  "age = " << p.mother.age
-   <<  "}"
-   <<  "father = " << "{"
-   <<  "name = p.father.name << "\n"
-   <<  "age = " << p.father.age
-   <<  "}"
-   <<  "}"
-   <<  "siblings = " << p.signlings_list << "\n"
+   << "mother = " << "{"
+   << "name = " << p.mother.name << "\n"
+   << "age = " << p.mother.age
+   << "}"
+   << "father = " << "{"
+   << "name = " << p.father.name << "\n"
+   << "age = " << p.father.age
+   << "}"
+   << "}"
+   << "siblings = " << p.signlings_list << "\n"
    << "}";
 cout << ds.str() << endl;
 ```
@@ -41,8 +41,8 @@ About Me = {
   age = 123
   parents = {
     mother = {
-    name = AA
-    age = 3342
+      name = AA
+      age = 3342
     }
     father = {
       name = BB
@@ -131,7 +131,7 @@ model_details_map = {
 
 ## `operator<<` overloading for `DebugStream`
 
-`operator<<(quick::DebugStream&, const T&)` is defined for  `primitive types` , `std::string`, `const char*`, `std::vector`, `std::pair`, `std::tuple`, `std::map`, `std::set`, `std::unordered_map`, `std::unordered_set`, `Any type T having "void DebugStream(quick::DebugStream&) const" member function`. 
+`operator<<(quick::DebugStream&, const T&)` is defined for  `primitive types` , `std::string`, `const char*`, `std::vector`, `std::pair`, `std::tuple`, `std::map`, `std::set`, `std::unordered_map`, `std::unordered_set`, `Any type T having "void T::DebugStream(quick::DebugStream&) const" member function`. 
 
 
 Member Functions
