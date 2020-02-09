@@ -111,7 +111,7 @@ TEST(QuickVariant, CustomType) {
     auto v4 = std::move(v3);
     EXPECT_EQ(values, Values()) << values.counts;
     v3.at<2>(457);
-    EXPECT_EQ(v3.selected_type(), 2);
+    EXPECT_EQ(v3.selected_type(), 2U);
     values.Reset();
     auto v5 = std::move(v3);
     EXPECT_EQ(values, Values().MoveCtr(1)) << values.counts;
