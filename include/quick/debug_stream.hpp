@@ -19,7 +19,7 @@
 #include <quick/type_traits.hpp>
 
 // ToDos()
-//  1. Implement DebugStream for std::tuple
+//  1. Implement DebugStream for std::tuple as well.
 
 
 namespace quick {
@@ -216,8 +216,34 @@ class DebugStream {
   uint32_t depth = 0;
 };
 
-namespace detail {
+namespace debug_stream_impl {
+
+template<typename... Ts>
+inline void PrintTupleImpl(DebugStream&,
+                           const std::tuple<Ts...>&,
+                           std::index_sequence<>) {}
+
+template<typename... Ts, std::size_t index_head, std::size_t... index_tail>
+inline void PrintTupleImpl(DebugStream& ds,
+                           const std::tuple<Ts...>& input,
+                           std::index_sequence<index_head, index_tail...>) {
+  if (index_head > 0) {
+    ds << ", ";
+  }
+  ds << std::get<index_head>(input);
+  PrintTupleImpl(ds, input, std::index_sequence<index_tail...>());
 }
+
+template<typename... Ts>
+void PrintTuple(DebugStream& ds, const std::tuple<Ts...>& input) {
+  ds << "(";
+  constexpr std::size_t num_elements
+                            = std::tuple_size<std::tuple<Ts...>>::value;
+  PrintTupleImpl(ds, input, std::make_index_sequence<num_elements>());
+  ds << ")";
+}
+
+}  // namespace debug_stream_impl
 
 
 template<typename T>
@@ -286,6 +312,13 @@ DebugStream& operator<<(DebugStream& ds, const std::pair<T1, T2>& input) {
   ds << "(" << input.first << ", " << input.second << ")";
   return ds;
 }
+
+template<typename... Ts>
+DebugStream& operator<<(DebugStream& ds, const std::tuple<Ts...>& input) {
+  quick::debug_stream_impl::PrintTuple(ds, input);
+  return ds;
+}
+
 
 template<typename T>
 std::enable_if_t<

@@ -313,3 +313,8 @@ TEST(DebugStreamTest, ConstructorAndConsume) {
 }
 
 
+TEST(DebugStreamTest, Tuple) {
+  std::tuple<int, string, int> x(11, "mohit", 22);
+  EXPECT_EQ(quick::DebugStream(x).str(), "(\n  11, mohit, 22\n)");
+}
+
