@@ -218,6 +218,25 @@ class DebugStream {
 
 namespace debug_stream_impl {
 
+// In case of success: output type is an instance of std::true_type
+// In case of failure: Either fails while substituting or output type is an
+//                     instance of std::false_type
+// Need a wrapper to cover substitution failure ? use this =>
+// quick::specialize_if_can<std::false_type, HasDebugString, T>::value
+// It will fall back on `std::false_type` in the case of substitution failure.
+template<typename T>
+using HasDebugString = std::is_same<
+                          std::string,
+                          decltype(std::declval<const T&>().DebugString())>;
+
+template<typename T>
+using HasDebugStream = std::is_same<void,
+                                    decltype(
+                                      std::declval<const T&>().DebugStream(
+                                        std::declval<quick::DebugStream&>()))>;
+
+
+
 template<typename... Ts>
 inline void PrintTupleImpl(DebugStream&,
                            const std::tuple<Ts...>&,
@@ -319,20 +338,28 @@ DebugStream& operator<<(DebugStream& ds, const std::tuple<Ts...>& input) {
   return ds;
 }
 
-
+// Use T::DebugString only if D::DebugStream is not available.
 template<typename T>
-std::enable_if_t<
-  std::is_same<void,
-               decltype(
-                 std::declval<const T&>().DebugStream(
-                   std::declval<quick::DebugStream&>()))>::value,
-  DebugStream>&
+std::enable_if_t<(quick::debug_stream_impl::HasDebugString<T>::value &&
+                  not(quick::specialize_if_can<std::false_type,
+                                               quick::debug_stream_impl::HasDebugStream,
+                                               T>::value)), DebugStream>&
+operator<<(DebugStream& ds, const T& input) {
+  ds << input.DebugString();
+  return ds;
+}
+
+// Use T::DebugStream if available.
+template<typename T>
+std::enable_if_t<debug_stream_impl::HasDebugStream<T>::value, DebugStream>&
 operator<<(DebugStream& ds, const T& input) {
   ds << "{";
   input.DebugStream(ds);
   ds << "}";
   return ds;
 }
+
+
 
 }  // namespace quick
 

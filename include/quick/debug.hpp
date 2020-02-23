@@ -142,6 +142,7 @@ std::string ToString(const T& input) {
 namespace std {
 
 
+// Use T::DebugString only if D::DebugStream is not available.
 template<typename T>
 std::enable_if_t<(quick::detail::HasDebugString<T>::value &&
                   not(quick::specialize_if_can<std::false_type,

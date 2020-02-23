@@ -24,7 +24,7 @@ using std::unordered_map;
 using std::vector;
 using std::cout;
 using std::endl;
-
+using quick::DebugStream;
 
 // To generate C++ string to enforce a EXPECT_EQ, follow these step
 // 1. Do `cout << ds.str() << endl` and print the output. Copy paste the output
@@ -33,6 +33,20 @@ using std::endl;
 //
 // a = """<output>"""
 // print("\n".join('"'+i+"\\n"+'"' for i in a.split("\n")))
+
+enum EnumType {AAEnumType, CCEnumType};
+
+DebugStream& operator<<(DebugStream& ds, EnumType e) {
+  switch (e) {
+    case EnumType::AAEnumType:
+      ds << "AAEnumType";
+      break;
+    case EnumType::CCEnumType:
+      ds << "CCEnumType";
+      break;
+  }
+  return ds;
+}
 
 TEST(DebugStreamTest, Fundamental) {
   using quick::DebugStream;
@@ -47,8 +61,7 @@ TEST(DebugStreamTest, Fundamental) {
 }
 
 
-TEST(DebugStreamTest, Basic) {
-  using quick::DebugStream;
+TEST(DebugStreamTest, Enum) {
   string expected_output;
   {
     quick::DebugStream ds;
@@ -91,6 +104,10 @@ TEST(DebugStreamTest, Basic) {
         ")";
     EXPECT_EQ(ds.str(), expected_output);
   }
+}
+
+TEST(DebugStreamTest, Pair) {
+  string expected_output;
   {
     quick::DebugStream ds;
     ds << "mohit\n\n";
@@ -128,6 +145,10 @@ TEST(DebugStreamTest, Basic) {
           ")";
     EXPECT_EQ(ds.str(), expected_output);
   }
+}
+
+TEST(DebugStreamTest, Vector) {
+  string expected_output;
   {
     quick::DebugStream ds;
     vector<vector<int>> v1 = {{11, 22}, {44, 55}};
@@ -167,7 +188,10 @@ TEST(DebugStreamTest, Basic) {
           "}\n";
     EXPECT_EQ(ds.str(), expected_output);
   }
+}
 
+TEST(DebugStreamTest, DebugStreamMethod) {
+  string expected_output;
   {
     struct S {
       string s;
@@ -264,6 +288,22 @@ TEST(DebugStreamTest, Basic) {
       EXPECT_EQ(expected_output, ds.str());
     }
   }
+}
+
+TEST(DebugStreamTest, DebugStringMethod) {
+  struct S {
+    string DebugString() const {
+      return "S::DebugString";
+    }
+  };
+  DebugStream ds;
+  S s;
+  ds << s;
+  EXPECT_EQ("S::DebugString", ds.str());
+}
+
+TEST(DebugStreamTest, STDList) {
+  string expected_output;
   {
     quick::DebugStream ds;
     std::list<pair<int, int>> p2 = {{11, 22}, {44, 55}, {44, 55}};
@@ -306,9 +346,9 @@ TEST(DebugStreamTest, Branch) {
 
 
 TEST(DebugStreamTest, ConstructorAndConsume) {
-  int x = 100;
+  int a = 100;
   vector<int> v = {11, 22, 33};
-  EXPECT_EQ(quick::DebugStream(x, x, x, x).SetInline(true).Consume(v).str(),
+  EXPECT_EQ(quick::DebugStream(a, a, a, a).SetInline(true).Consume(v).str(),
             "100100100100[11, 22, 33]");
 }
 
@@ -316,5 +356,12 @@ TEST(DebugStreamTest, ConstructorAndConsume) {
 TEST(DebugStreamTest, Tuple) {
   std::tuple<int, string, int> x(11, "mohit", 22);
   EXPECT_EQ(quick::DebugStream(x).str(), "(\n  11, mohit, 22\n)");
+}
+
+TEST(DebugStreamTest, EnumString) {
+  EnumType e = EnumType::AAEnumType;
+  DebugStream ds;
+  ds << e;
+  EXPECT_EQ("AAEnumType", ds.str());
 }
 
