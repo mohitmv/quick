@@ -4,17 +4,13 @@
 #ifndef QUICK_UTILITY_HPP_
 #define QUICK_UTILITY_HPP_
 
+
+
 namespace quick {
 
+// A type, which can safely hold the unique_ptr/shared_ptr of any type derived
+// from it.
 struct AbstractType {
-  template<typename T>
-  operator const T&() const {
-    return static_cast<const T&>(*this);
-  }
-  template<typename T>
-  operator T&() {
-    return static_cast<T&>(*this);
-  }
   virtual ~AbstractType() = default;
 };
 
