@@ -33,7 +33,6 @@ class DebugStream {
  public:
   std::ostringstream oss;
   DebugStream() = default;
-  DebugStream(const DebugStream&) = default;
   template<typename... Ts>
   explicit DebugStream(const Ts&... input) {
     this->Consume(input...);
