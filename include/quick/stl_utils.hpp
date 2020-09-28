@@ -12,6 +12,7 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <list>
 
 namespace quick {
 
@@ -75,9 +76,28 @@ auto STLGetKeys(const MapContainer& input) {
   return output;
 }
 
+// works as 'InsertToList' as well (std::list).
 template<typename Container1, typename Container2>
 void InsertToVector(const Container1& input, Container2* output) {
   output->insert(output->end(), input.begin(), input.end());
+}
+
+template<typename Container1, typename Container2>
+std::vector<typename Container1::value_type> VectorJoin(
+    const Container1& input1, const Container2& input2) {
+  std::vector<typename Container1::value_type> output;
+  InsertToVector(input1, &output);
+  InsertToVector(input2, &output);
+  return output;
+}
+
+template<typename Container1, typename Container2>
+std::list<typename Container1::value_type> ListJoin(
+    const Container1& input1, const Container2& input2) {
+  std::list<typename Container1::value_type> output;
+  InsertToVector(input1, &output);
+  InsertToVector(input2, &output);
+  return output;
 }
 
 template<typename Container1, typename Container2>

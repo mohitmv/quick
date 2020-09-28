@@ -39,6 +39,9 @@ configs.dependency_configs = [
   br.CppLibrary("src/variant",
                 hdrs = ["include/quick/variant.hpp"]),
 
+  br.CppLibrary("quick/type_traits/function_type",
+                hdrs = ["include/quick/type_traits/function_type.hpp"]),
+
   br.CppLibrary("src/type_traits",
                 hdrs = ["include/quick/type_traits.hpp"]),
 
@@ -135,6 +138,9 @@ configs.dependency_configs = [
                 srcs = ["tests/variant_test.cpp"],
                 deps = ["src/variant"]),
 
+  br.CppTest("tests/type_traits/function_type_test",
+                srcs = ["tests/type_traits/function_type_test.cpp"],
+                deps = ["quick/type_traits/function_type"]),
 
 ];
 
