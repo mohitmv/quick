@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import getopt, sys, infra_lib, os, helpers
 
 is_local_configs_setup_done = True;

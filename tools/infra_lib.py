@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import os
 
 class Object(dict):
@@ -16,7 +18,7 @@ def ReadFile(fn):
 
 def RunLinuxCommand(c):
   print("Running: " + c);
-  error_code = (os.system(c) >> 8);
+  error_code = os.system(c);
   if (error_code != 0):
     print("["+str(error_code)+"]Error Exit !");
     exit(error_code);

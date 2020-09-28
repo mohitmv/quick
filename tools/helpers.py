@@ -1,4 +1,7 @@
-import infra_lib, os
+import os
+
+import tools.infra_lib as infra_lib
+
 
 def PreProcessDependencyConfigs(configs):
   for i in configs.dependency_configs:

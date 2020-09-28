@@ -1,4 +1,6 @@
-import os, infra_lib
+import os
+
+import tools.infra_lib as infra_lib
 
 configs = infra_lib.Object();
 configs.compiler_options = infra_lib.Object(mode = "opt");
